@@ -1,10 +1,13 @@
 <template>
   <div class="container py-3">
     <div class="header-container">
-      <h1>🍽️ Gestión de Mesas - Restaurante</h1>
+      <h1>Gestión de Mesas</h1>
       <div class="header-buttons">
         <button class="add-table-btn" @click="showAddModal = true">
           ➕ Agregar Mesa
+        </button>
+        <button class="locations-btn" @click="showLocationsModal = true">
+          📍 Ubicaciones
         </button>
         <button class="reserve-table-btn" @click="showSelectModal = true">
           📅 Reservar Mesa
@@ -235,6 +238,61 @@
       </div>
     </div>
 
+    <!-- Locations Modal -->
+    <div
+      v-if="showLocationsModal"
+      class="modal"
+      @click.self="showLocationsModal = false"
+    >
+      <div class="modal-content large-modal">
+        <span class="close" @click="showLocationsModal = false">&times;</span>
+        <h2>📍 Ubicaciones del Restaurante</h2>
+        <div class="locations-container">
+          <div
+            v-for="location in ubicaciones"
+            :key="location"
+            class="location-section"
+          >
+            <h3 class="location-title">{{ location }}</h3>
+            <div class="location-tables">
+              <div
+                v-if="getTablesByLocation(location).length === 0"
+                class="no-tables-location"
+              >
+                <p>No hay mesas en esta ubicación.</p>
+              </div>
+              <div
+                v-for="mesa in getTablesByLocation(location)"
+                :key="mesa.id"
+                class="location-table-card"
+                :class="mesa.estado"
+              >
+                <div class="location-table-header">
+                  <div class="location-table-id">
+                    {{ mesa.id.toUpperCase() }}
+                  </div>
+                </div>
+                <div class="location-table-info">
+                  <div class="location-table-info-item">
+                    <strong>Capacidad:</strong> {{ mesa.capacidad }} personas
+                  </div>
+                  <div class="location-table-info-item">
+                    <strong>Estado:</strong>
+                    {{
+                      mesa.estado.charAt(0).toUpperCase() + mesa.estado.slice(1)
+                    }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button @click="showLocationsModal = false">Cerrar</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Reservations Modal -->
     <div
       v-if="showReservationsModal"
@@ -317,6 +375,7 @@ const showAddModal = ref(false);
 const showReserveModal = ref(false);
 const showSelectModal = ref(false);
 const showReservationsModal = ref(false);
+const showLocationsModal = ref(false);
 
 const newTable = ref({
   capacity: "",
@@ -335,6 +394,14 @@ const today = computed(() => {
   const date = new Date();
   return date.toISOString().split("T")[0];
 });
+
+const ubicaciones = computed(() => [
+  "Ventana",
+  "Jardín",
+  "Interior",
+  "Terraza",
+  "VIP",
+]);
 
 // === Funciones de persistencia ===
 function inicializarMesas() {
@@ -400,6 +467,7 @@ function eliminarMesa(id) {
 function abrirReserva(mesa) {
   mesaSeleccionada.value = mesa;
   showReserveModal.value = true;
+  showSelectModal.value = false;
 }
 
 // === Reservas ===
@@ -467,6 +535,14 @@ function getReservationStatusClass(res) {
 
 function getReservationStatusText(res) {
   return res.estado === "activa" ? "Activa" : "Inactiva";
+}
+
+function countTablesByLocation(location) {
+  return mesas.value.filter((mesa) => mesa.ubicacion === location).length;
+}
+
+function getTablesByLocation(location) {
+  return mesas.value.filter((mesa) => mesa.ubicacion === location);
 }
 
 // === Ciclo de vida ===
