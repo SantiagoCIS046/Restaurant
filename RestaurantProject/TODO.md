@@ -1,4 +1,4 @@
-Qui# TODO: Implement Detailed View for "Mesas Totales" Card
+# TODO: Implement Detailed View for "Mesas Totales" Card
 
 ## Tasks
 
@@ -48,3 +48,33 @@ Qui# TODO: Implement Detailed View for "Mesas Totales" Card
 - [x] Add helper methods: contarTotalPagos() and ingresosPorMetodo(metodo)
 - [x] Style the new modal appropriately (similar to existing modals)
 - [x] Test the functionality by running the app and clicking the card
+
+# TODO: Implementar Menú Detallado en Menu.vue
+
+## Tasks
+
+- [x] Actualizar el template para incluir secciones de categorías (Entradas, Platos Principales, Postres, Bebidas) con listas de elementos usando v-for
+- [x] Agregar datos reactivos en el script para las categorías y elementos del menú (con placeholders para imágenes, precios, etc.)
+- [x] Incluir botones funcionales para agregar al carrito (console.log para simular)
+- [x] Mejorar los estilos scoped para hacer el menú visualmente atractivo, con cards para cada elemento
+- [x] Ejecutar el proyecto para verificar que el menú se renderice correctamente
+- [ ] Probar la funcionalidad de los botones en el navegador
+
+# TODO: Mejorar Estilos del Menú en Menu.vue
+
+## Tasks
+
+- [x] Actualizar estilos scoped con gradientes, mejor tipografía, animaciones y colores vibrantes para tema de restaurante
+- [ ] Ejecutar el proyecto para verificar los cambios visuales
+- [ ] Probar responsividad en el navegador
+
+# TODO: Hacer Menú Más Profesional en Menu.vue
+
+## Tasks
+
+- [x] Agregar más elementos a categorías existentes (4-5 platos por categoría)
+- [x] Incluir nueva categoría "Especialidades del Chef"
+- [x] Agregar header con información del restaurante
+- [x] Mejorar estilos con iconos para categorías
+- [x] Agregar filtro de búsqueda para elementos del menú
+- [x] Ejecutar proyecto y probar funcionalidad
