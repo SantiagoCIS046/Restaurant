@@ -2,21 +2,46 @@
   <nav class="navbar">
     <div class="navbar-container">
       <button class="nav-btn" @click="navigateTo('gestion')">
-        Gestión Mesas
+        <i class="fas fa-utensils"></i> Gestión Mesas
       </button>
-      <button class="nav-btn" @click="navigateTo('registro')">Registro</button>
-      <button class="nav-btn" @click="navigateTo('menu')">Menú</button>
-      <button class="nav-btn" @click="navigateTo('clientes')">Clientes</button>
-      <button class="nav-btn" @click="navigateTo('reportes')">Reportes</button>
+      <button class="nav-btn" @click="navigateTo('registro')">
+        <i class="fas fa-clipboard-list"></i> Registro
+      </button>
+      <button class="nav-btn" @click="navigateTo('menu')">
+        <i class="fas fa-book-open"></i> Menú
+      </button>
+      <button class="nav-btn" @click="navigateTo('clientes')">
+        <i class="fas fa-users"></i> Clientes
+      </button>
+      <button class="nav-btn" @click="navigateTo('reportes')">
+        <i class="fas fa-chart-bar"></i> Reportes
+      </button>
+      <button class="nav-btn" @click="navigateTo('inventario')">
+        <i class="fas fa-boxes"></i> Inventario
+      </button>
+      <button class="nav-btn" @click="navigateTo('personal')">
+        <i class="fas fa-user-tie"></i> Personal
+      </button>
+      <button class="nav-btn" @click="navigateTo('pedidos')">
+        <i class="fas fa-shopping-cart"></i> Pedidos
+      </button>
+      <button class="nav-btn" @click="navigateTo('finanzas')">
+        <i class="fas fa-dollar-sign"></i> Finanzas
+      </button>
+      <button class="nav-btn" @click="navigateTo('caracteristicas')">
+        <i class="fas fa-cogs"></i> Características
+      </button>
     </div>
   </nav>
 </template>
 
 <script setup>
+import { defineEmits } from "vue";
+
+const emit = defineEmits(["navigate"]);
+
 const navigateTo = (section) => {
-  // Placeholder for navigation logic
-  console.log(`Navigate to ${section}`);
-  // You can emit events or use router here if needed
+  emit("navigate", section);
 };
 </script>
 
@@ -37,21 +62,29 @@ const navigateTo = (section) => {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 1rem;
 }
 
 .nav-btn {
   background: transparent;
   border: none;
   color: #e2e8f0;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.75rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  border-radius: 6px;
+  border-radius: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 100px;
+}
+
+.nav-btn i {
+  font-size: 1rem;
 }
 
 .nav-btn:hover {
