@@ -13,6 +13,7 @@ import Finanzas from "./components/Finanzas.vue";
 import Caracteristicas from "./components/Caracteristicas.vue";
 
 const currentView = ref("gestion");
+const subView = ref("mesas");
 
 const components = {
   gestion: Restaurant,
@@ -29,12 +30,21 @@ const components = {
 
 const handleNavigate = (section) => {
   currentView.value = section;
+  subView.value = "mesas"; // Reset sub-view on main navigation
+};
+
+const handleSubNavigate = (subSection) => {
+  subView.value = subSection;
 };
 </script>
 
 <template>
-  <NavBar @navigate="handleNavigate" />
-  <component :is="components[currentView]" />
+  <NavBar
+    :current-view="currentView"
+    @navigate="handleNavigate"
+    @sub-navigate="handleSubNavigate"
+  />
+  <component :is="components[currentView]" :sub-view="subView" />
 </template>
 
 <style scoped></style>

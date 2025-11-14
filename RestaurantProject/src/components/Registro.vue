@@ -151,7 +151,7 @@
           :class="['view-btn', { active: currentView === 'detailed' }]"
           @click="currentView = 'detailed'"
         >
-          📋 Registro Detallado
+          Ocultar Vistas
         </button>
       </div>
       <h3 class="summary-title">📊 Resumen del Día</h3>

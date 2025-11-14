@@ -33,15 +33,38 @@
       </button>
     </div>
   </nav>
+  <div v-if="props.currentView === 'gestion'" class="sub-nav">
+    <button class="sub-nav-btn" @click="subNavigate('mesas')">Mesas</button>
+    <button class="sub-nav-btn" @click="subNavigate('mostrador')">
+      Mostrador
+    </button>
+    <button class="sub-nav-btn" @click="subNavigate('domicilio')">
+      Domicilio
+    </button>
+    <button class="sub-nav-btn" @click="subNavigate('mostraplus')">
+      MostraPlus
+    </button>
+  </div>
 </template>
 
 <script setup>
-import { defineEmits } from "vue";
+import { defineEmits, defineProps } from "vue";
 
-const emit = defineEmits(["navigate"]);
+const props = defineProps({
+  currentView: {
+    type: String,
+    default: "gestion",
+  },
+});
+
+const emit = defineEmits(["navigate", "sub-navigate"]);
 
 const navigateTo = (section) => {
   emit("navigate", section);
+};
+
+const subNavigate = (subSection) => {
+  emit("sub-navigate", subSection);
 };
 </script>
 
@@ -110,5 +133,46 @@ const navigateTo = (section) => {
     min-width: 100px;
     margin: 0.25rem;
   }
+}
+
+.sub-nav {
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background: rgba(26, 46, 82, 0.733);
+  border-radius: 1px;
+  position: fixed;
+  top: 48px; /* Adjust based on navbar height */
+  left: 0;
+  width: 100%;
+  z-index: 999;
+  pointer-events: auto;
+}
+
+.sub-nav-btn {
+  background: #3182ce;
+  border: none;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.1px;
+}
+
+.sub-nav-btn:hover {
+  background: #2c5282;
+  transform: translateY(-1px);
+}
+
+.sub-nav-btn:focus {
+  outline: 2px solid #076da951;
+  transition: outline 0.1s ease;
+  outline-offset: 0.5px;
 }
 </style>

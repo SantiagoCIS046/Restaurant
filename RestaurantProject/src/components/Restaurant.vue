@@ -1,81 +1,126 @@
 <template>
   <div class="container py-3">
-    <div class="header-container">
-      <h1>Gestión de Mesas</h1>
-      <div class="header-buttons">
-        <button class="add-table-btn" @click="showAddModal = true">
-          ➕ Agregar Mesa
-        </button>
-        <button class="locations-btn" @click="showLocationsModal = true">
-          📍 Ubicaciones
-        </button>
-        <button class="reserve-table-btn" @click="showSelectModal = true">
-          📅 Reservar Mesa
-        </button>
-        <button
-          class="view-reservations-btn"
-          @click="showReservationsModal = true"
-        >
-          📋 Ver Reservas
-          <span class="reservations-badge" id="reservations-badge">{{
-            reservasActivas.length
-          }}</span>
-        </button>
+    <div v-if="props.subView === 'mesas'" class="mesas-view">
+      <div class="header-container">
+        <h1>Gestión de Mesas</h1>
+        <div class="header-buttons">
+          <button class="add-table-btn" @click="showAddModal = true">
+            ➕ Agregar Mesa
+          </button>
+          <button class="reserve-table-btn" @click="showSelectModal = true">
+            📅 Reservar Mesa
+          </button>
+          <button
+            class="view-reservations-btn"
+            @click="showReservationsModal = true"
+          >
+            📋 Ver Reservas
+            <span class="reservations-badge" id="reservations-badge">{{
+              reservasActivas.length
+            }}</span>
+          </button>
+        </div>
       </div>
-    </div>
 
-    <div class="stats">
-      <div
-        class="stat-item"
-        v-for="estado in [
-          'disponible',
-          'reservada',
-          'ocupada',
-          'deshabilitada',
-        ]"
-        :key="estado"
-      >
-        <div class="stat-number">{{ countByState(estado) }}</div>
-        <div class="stat-label">
-          {{ estado.charAt(0).toUpperCase() + estado.slice(1) }}
+      <div class="mesas-layout">
+        <div class="locations-sidebar">
+          <h3>Ubicaciones</h3>
+          <button
+            class="location-btn"
+            :class="{ active: selectedLocation === 'all' }"
+            @click="selectedLocation = 'all'"
+          >
+            Todas las Ubicaciones
+          </button>
+          <button
+            v-for="location in ubicaciones"
+            :key="location"
+            class="location-btn"
+            :class="{ active: selectedLocation === location }"
+            @click="selectedLocation = location"
+          >
+            {{ location }}
+          </button>
+        </div>
+
+        <div class="tables-main">
+          <div class="stats">
+            <div
+              class="stat-item"
+              v-for="estado in [
+                'disponible',
+                'reservada',
+                'ocupada',
+                'deshabilitada',
+              ]"
+              :key="estado"
+            >
+              <div class="stat-number">{{ countByState(estado) }}</div>
+              <div class="stat-label">
+                {{ estado.charAt(0).toUpperCase() + estado.slice(1) }}
+              </div>
+            </div>
+          </div>
+
+          <h2>
+            Mesas en
+            {{
+              selectedLocation === "all"
+                ? "Todas las Ubicaciones"
+                : selectedLocation
+            }}
+          </h2>
+          <div class="table-grid">
+            <div
+              v-for="mesa in filteredMesas"
+              :key="mesa.id"
+              class="table-card"
+              :class="mesa.estado"
+            >
+              <div class="table-header">
+                <div class="table-id">{{ mesa.id.toUpperCase() }}</div>
+              </div>
+              <div class="table-info">Capacidad: {{ mesa.capacidad }}</div>
+              <div class="table-info">Ubicación: {{ mesa.ubicacion }}</div>
+              <select
+                v-model="mesa.estado"
+                @change="guardarMesas"
+                class="status-select"
+              >
+                <option value="disponible">Disponible</option>
+                <option value="reservada">Reservada</option>
+                <option value="ocupada">Ocupada</option>
+                <option value="deshabilitada">Deshabilitada</option>
+              </select>
+              <button class="delete-btn" @click="eliminarMesa(mesa.id)">
+                🗑️ Eliminar
+              </button>
+              <button
+                v-if="mesa.estado === 'disponible'"
+                class="reserve-btn"
+                @click="abrirReserva(mesa)"
+              >
+                📅 Reservar
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <h2>Estado de Mesas</h2>
-    <div class="table-grid">
-      <div
-        v-for="mesa in mesas"
-        :key="mesa.id"
-        class="table-card"
-        :class="mesa.estado"
-      >
-        <div class="table-header">
-          <div class="table-id">{{ mesa.id.toUpperCase() }}</div>
-        </div>
-        <div class="table-info">Capacidad: {{ mesa.capacidad }}</div>
-        <div class="table-info">Ubicación: {{ mesa.ubicacion }}</div>
-        <select
-          v-model="mesa.estado"
-          @change="guardarMesas"
-          class="status-select"
-        >
-          <option value="disponible">Disponible</option>
-          <option value="reservada">Reservada</option>
-          <option value="ocupada">Ocupada</option>
-          <option value="deshabilitada">Deshabilitada</option>
-        </select>
-        <button class="delete-btn" @click="eliminarMesa(mesa.id)">
-          🗑️ Eliminar
-        </button>
-        <button
-          v-if="mesa.estado === 'disponible'"
-          class="reserve-btn"
-          @click="abrirReserva(mesa)"
-        >
-          📅 Reservar
-        </button>
-      </div>
+    <div v-else-if="props.subView === 'mostrador'" class="mostrador-view">
+      <h1>Mostrador</h1>
+      <p>Contenido del mostrador...</p>
+    </div>
+
+    <div v-else-if="props.subView === 'domicilio'" class="domicilio-view">
+      <h1>Domicilio</h1>
+      <p>Contenido del domicilio...</p>
+    </div>
+
+    <div v-else-if="props.subView === 'mostraplus'" class="mostraplus-view">
+      <h1>MostraPlus</h1>
+      <p>Contenido de MostraPlus...</p>
     </div>
 
     <!-- MODALES -->
@@ -364,7 +409,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, defineProps } from "vue";
+
+const props = defineProps({
+  subView: {
+    type: String,
+    default: "mesas",
+  },
+});
 
 // === Estado ===
 const mesas = ref([]);
@@ -376,6 +428,7 @@ const showReserveModal = ref(false);
 const showSelectModal = ref(false);
 const showReservationsModal = ref(false);
 const showLocationsModal = ref(false);
+const selectedLocation = ref("all");
 
 const newTable = ref({
   capacity: "",
@@ -545,6 +598,15 @@ function getTablesByLocation(location) {
   return mesas.value.filter((mesa) => mesa.ubicacion === location);
 }
 
+const filteredMesas = computed(() => {
+  if (selectedLocation.value === "all") {
+    return mesas.value;
+  }
+  return mesas.value.filter(
+    (mesa) => mesa.ubicacion === selectedLocation.value
+  );
+});
+
 // === Ciclo de vida ===
 onMounted(() => {
   inicializarMesas();
@@ -558,4 +620,54 @@ watch(reservas, guardarReservas, { deep: true });
 
 <style scoped>
 @import "../style.css";
+
+.container {
+  padding-top: 120px; /* Adjust to account for fixed navbar and sub-nav */
+}
+
+.mesas-layout {
+  display: flex;
+  gap: 2rem;
+}
+
+.locations-sidebar {
+  width: 250px;
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: fit-content;
+}
+
+.locations-sidebar h3 {
+  margin-bottom: 1rem;
+  color: #2d3748;
+}
+
+.location-btn {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.location-btn:hover {
+  background: #edf2f7;
+}
+
+.location-btn.active {
+  background: #3182ce;
+  color: white;
+  border-color: #3182ce;
+}
+
+.tables-main {
+  flex: 1;
+}
 </style>
