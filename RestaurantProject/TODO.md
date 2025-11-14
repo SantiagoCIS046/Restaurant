@@ -1,80 +1,40 @@
-# TODO: Implement Detailed View for "Mesas Totales" Card
+# TODO: Implementar Gestión de Clientes con Detalles de Pagos, Mesas y Pedidos
 
-## Tasks
+## Información Recopilada
 
-- [x] Add reactive refs: showMesasModal (boolean), addedTables, deletedTables, reservations (arrays with mock data including dates)
-- [x] Make the "Mesas Totales" summary-card clickable with @click="showMesasModal = true"
-- [x] Add modal HTML structure below existing modals, with sections for:
-  - Current Tables: List mesasFiltradas with details (number, status, clients, etc.)
-  - Added Tables: List with dates
-  - Deleted Tables: List with dates
-  - Reservations: List with dates
-  - Extra Option: "Export Report" button with alert functionality
-- [x] Update mockData to include history examples (addedTables, deletedTables, reservations)
-- [x] Style the new modal appropriately (similar to existing modals)
-- [x] Test the functionality by running the app and clicking the card
+- **Clientes.vue**: Ahora implementado completamente con gestión de clientes, integración con reservas de Restaurant.vue, pagos simulados y detalles de mesas.
+- **Restaurant.vue**: Proporciona datos de mesas y reservas en localStorage ("mesasRestaurante", "reservasRestaurante"). Usamos reservas para asociar clientes por nombre.
+- **Pedidos.vue** y **Finanzas.vue**: Preparados para expansión futura con pedidos reales y finanzas detalladas.
+- Integración: Clientes se crean automáticamente desde reservas existentes. Pagos simulados de $50 por reserva. Placeholder para pedidos.
 
-# TODO: Implement Modal for "Clientes Atendidos" Card
+## Plan de Implementación
 
-## Tasks
+1. **Inicializar Datos de Clientes**: ✅ Completado - localStorage "clientesRestaurante" inicializado.
+2. **Asociar Reservas a Clientes**: ✅ Completado - Por nombre de reserva, vincular mesas y pagos simulados.
+3. **UI de Clientes**: ✅ Completado - Lista de clientes con detalles expandibles (reservas, mesas, pagos, pedidos placeholder).
+4. **Funcionalidades CRUD**: ✅ Completado - Agregar, ver detalles y eliminar clientes.
+5. **Persistencia**: ✅ Completado - Usar localStorage para guardar cambios.
+6. **Expansión Futura**: Preparado - Placeholder para integrar pedidos reales de Pedidos.vue y finanzas de Finanzas.vue.
 
-- [x] Add reactive ref: showClientesModal (boolean)
-- [x] Make the "Clientes Atendidos" summary-card clickable with @click="showClientesModal = true"
-- [x] Add modal HTML structure for clients, showing list of attended clients grouped by table, including client name, table number, and payment method for the table
-- [x] Style the new modal appropriately (similar to existing modals)
-- [x] Test the functionality by running the app and clicking the card
+## Pasos Detallados
 
-# TODO: Implement Modal for "Pedidos Realizados" Card
+- [x] Leer reservas de localStorage en Clientes.vue.
+- [x] Crear función para inicializar clientes simulados si no existen.
+- [x] Implementar template con lista de clientes y modales para detalles.
+- [x] Agregar lógica para calcular pagos simulados basados en reservas.
+- [x] Implementar métodos CRUD para clientes.
+- [x] Agregar estilos consistentes con el proyecto.
+- [x] Probar integración con Restaurant.vue (cambios en reservas se reflejen en clientes).
 
-## Tasks
+## Archivos Editados
 
-- [x] Add reactive ref: showPedidosModal (boolean)
-- [x] Make the "Pedidos Realizados" summary-card clickable with @click="showPedidosModal = true"
-- [x] Add modal HTML structure for pedidos, showing list of orders grouped by table (table number, order description, total, time)
-- [x] Style the new modal appropriately (similar to existing modals)
-- [x] Test the functionality by running the app and clicking the card
+- RestaurantProject/src/components/Clientes.vue (implementado completamente)
+- RestaurantProject/TODO.md (actualizado con progreso)
 
-# TODO: Implement Modal for "Ingresos Totales" Card
+## Próximos Pasos de Expansión
 
-## Tasks
-
-- [x] Add reactive ref: showIngresosModal (boolean)
-- [x] Make the "Ingresos Totales" summary-card clickable with @click="showIngresosModal = true"
-- [x] Add modal HTML structure for ingresos, showing detailed breakdown of all income transactions including:
-  - List of all payments (pagos) with table number, amount, method, and time
-  - Summary of total income by payment method
-  - Total number of payments
-  - Real-time updating total
-- [x] Add helper methods: contarTotalPagos() and ingresosPorMetodo(metodo)
-- [x] Style the new modal appropriately (similar to existing modals)
-- [x] Test the functionality by running the app and clicking the card
-
-# TODO: Implementar Menú Detallado en Menu.vue
-
-## Tasks
-
-- [x] Actualizar el template para incluir secciones de categorías (Entradas, Platos Principales, Postres, Bebidas) con listas de elementos usando v-for
-- [x] Agregar datos reactivos en el script para las categorías y elementos del menú (con placeholders para imágenes, precios, etc.)
-- [x] Incluir botones funcionales para agregar al carrito (console.log para simular)
-- [x] Mejorar los estilos scoped para hacer el menú visualmente atractivo, con cards para cada elemento
-- [x] Ejecutar el proyecto para verificar que el menú se renderice correctamente
-- [ ] Probar la funcionalidad de los botones en el navegador
-
-# TODO: Mejorar Estilos del Menú en Menu.vue
-
-## Tasks
-
-- [x] Actualizar estilos scoped con gradientes, mejor tipografía, animaciones y colores vibrantes para tema de restaurante
-- [ ] Ejecutar el proyecto para verificar los cambios visuales
-- [ ] Probar responsividad en el navegador
-
-# TODO: Hacer Menú Más Profesional en Menu.vue
-
-## Tasks
-
-- [x] Agregar más elementos a categorías existentes (4-5 platos por categoría)
-- [x] Incluir nueva categoría "Especialidades del Chef"
-- [x] Agregar header con información del restaurante
-- [x] Mejorar estilos con iconos para categorías
-- [x] Agregar filtro de búsqueda para elementos del menú
-- [x] Ejecutar proyecto y probar funcionalidad
+- Integrar pedidos reales desde Pedidos.vue.
+- Agregar finanzas detalladas desde Finanzas.vue.
+- Mejorar pagos con métodos reales y montos variables.
+- Agregar edición de clientes.
+- Implementar búsqueda y filtros.
