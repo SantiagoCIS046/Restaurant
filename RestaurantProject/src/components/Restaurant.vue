@@ -168,52 +168,105 @@
       class="modal"
       @click.self="showReserveModal = false"
     >
-      <div class="modal-content">
+      <div class="modal-content large-modal">
         <span class="close" @click="showReserveModal = false">&times;</span>
         <h2>Reservar Mesa</h2>
         <form @submit.prevent="crearReserva">
-          <div class="form-group">
-            <label for="reserve-name">Nombre:</label>
-            <input
-              type="text"
-              id="reserve-name"
-              v-model="reservation.name"
-              required
-            />
+          <div class="form-row">
+            <div class="form-group">
+              <label for="reserve-name">Nombre:</label>
+              <input
+                type="text"
+                id="reserve-name"
+                v-model="reservation.name"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="reserve-email">Email:</label>
+              <input
+                type="email"
+                id="reserve-email"
+                v-model="reservation.email"
+                required
+              />
+            </div>
           </div>
-          <div class="form-group">
-            <label for="reserve-day">Día:</label>
-            <input
-              type="date"
-              id="reserve-day"
-              v-model="reservation.day"
-              :min="today"
-              required
-            />
+          <div class="form-row">
+            <div class="form-group">
+              <label for="reserve-phone">Teléfono:</label>
+              <input
+                type="tel"
+                id="reserve-phone"
+                v-model="reservation.phone"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="reserve-id">ID del Cliente:</label>
+              <input
+                type="text"
+                id="reserve-id"
+                v-model="reservation.clientId"
+                placeholder="Se generará automáticamente"
+                readonly
+              />
+            </div>
           </div>
-          <div class="form-group">
-            <label for="reserve-time">Hora:</label>
-            <input
-              type="time"
-              id="reserve-time"
-              v-model="reservation.time"
-              required
-            />
+          <div class="form-row">
+            <div class="form-group">
+              <label for="reserve-day">Día:</label>
+              <input
+                type="date"
+                id="reserve-day"
+                v-model="reservation.day"
+                :min="today"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="reserve-time">Hora:</label>
+              <input
+                type="time"
+                id="reserve-time"
+                v-model="reservation.time"
+                required
+              />
+            </div>
           </div>
-          <div class="form-group">
-            <label for="reserve-location">Lugar:</label>
-            <select
-              id="reserve-location"
-              v-model="reservation.location"
-              required
-            >
-              <option value="">Seleccionar lugar...</option>
-              <option value="Ventana">Ventana</option>
-              <option value="Jardín">Jardín</option>
-              <option value="Interior">Interior</option>
-              <option value="Terraza">Terraza</option>
-              <option value="VIP">VIP</option>
-            </select>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="reserve-location">Lugar:</label>
+              <select
+                id="reserve-location"
+                v-model="reservation.location"
+                required
+              >
+                <option value="">Seleccionar lugar...</option>
+                <option value="Ventana">Ventana</option>
+                <option value="Jardín">Jardín</option>
+                <option value="Interior">Interior</option>
+                <option value="Terraza">Terraza</option>
+                <option value="VIP">VIP</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="reserve-payment">Forma de Pago:</label>
+              <select
+                id="reserve-payment"
+                v-model="reservation.paymentMethod"
+                required
+              >
+                <option value="">Seleccionar método...</option>
+                <option value="Efectivo">💵 Efectivo</option>
+                <option value="Tarjeta de Crédito">
+                  💳 Tarjeta de Crédito
+                </option>
+                <option value="Tarjeta de Débito">💳 Tarjeta de Débito</option>
+                <option value="Transferencia">🏦 Transferencia</option>
+                <option value="Cheque">📄 Cheque</option>
+              </select>
+            </div>
           </div>
           <div class="form-group">
             <label for="reserve-occasion">Tipo de Reserva:</label>
@@ -231,6 +284,16 @@
               <option value="Compromiso">💑 Compromiso</option>
               <option value="Amigos">👥 Amigos</option>
             </select>
+          </div>
+          <div class="form-group">
+            <label for="reserve-notes">Notas Adicionales:</label>
+            <textarea
+              id="reserve-notes"
+              v-model="reservation.notes"
+              rows="4"
+              placeholder="Información adicional sobre la reserva..."
+              class="notes-textarea"
+            ></textarea>
           </div>
           <div class="form-actions">
             <button type="button" @click="showReserveModal = false">
@@ -437,10 +500,15 @@ const newTable = ref({
 
 const reservation = ref({
   name: "",
+  email: "",
+  phone: "",
+  clientId: "",
   day: "",
   time: "",
   location: "",
   occasion: "",
+  paymentMethod: "",
+  notes: "",
 });
 
 const today = computed(() => {
@@ -525,32 +593,141 @@ function abrirReserva(mesa) {
 
 // === Reservas ===
 function crearReserva() {
+  // Generar ID del cliente si no existe
+  let clientId = reservation.value.clientId;
+  if (!clientId) {
+    const existingClients = JSON.parse(
+      localStorage.getItem("clientesRestaurante") || "[]"
+    );
+    const existingClient = existingClients.find(
+      (c) =>
+        c.nombre === reservation.value.name &&
+        c.email === reservation.value.email
+    );
+    if (existingClient) {
+      clientId = existingClient.id;
+    } else {
+      clientId = `cliente${existingClients.length + 1}`;
+    }
+  }
+
   const nuevaReserva = {
+    id: `reserva${reservas.value.length + 1}`,
     nombre: reservation.value.name,
+    email: reservation.value.email,
+    telefono: reservation.value.phone,
+    clientId: clientId,
     dia: reservation.value.day,
     hora: reservation.value.time,
     lugar: reservation.value.location,
     ocasion: reservation.value.occasion,
+    formaPago: reservation.value.paymentMethod,
+    notas: reservation.value.notes,
     mesaId: mesaSeleccionada.value.id,
     estado: "activa",
+    fechaCreacion: new Date().toISOString(),
   };
-  nuevaReserva.id = `reserva${reservas.value.length + 1}`;
+
   reservas.value.push(nuevaReserva);
 
   // Cambiar mesa a reservada
   const mesa = mesas.value.find((m) => m.id === nuevaReserva.mesaId);
   if (mesa) mesa.estado = "reservada";
 
+  // Crear o actualizar cliente automáticamente
+  actualizarClienteDesdeReserva(nuevaReserva);
+
   guardarMesas();
   guardarReservas();
   showReserveModal.value = false;
   reservation.value = {
     name: "",
+    email: "",
+    phone: "",
+    clientId: "",
     day: "",
     time: "",
     location: "",
     occasion: "",
+    paymentMethod: "",
+    notes: "",
   };
+}
+
+function actualizarClienteDesdeReserva(reserva) {
+  const existingClients = JSON.parse(
+    localStorage.getItem("clientesRestaurante") || "[]"
+  );
+  let cliente = existingClients.find((c) => c.id === reserva.clientId);
+
+  if (!cliente) {
+    // Crear nuevo cliente
+    cliente = {
+      id: reserva.clientId,
+      nombre: reserva.nombre,
+      email: reserva.email,
+      telefono: reserva.telefono,
+      reservas: [],
+      pagos: [],
+      totalPagos: 0,
+      fechaRegistro: new Date().toISOString(),
+    };
+    existingClients.push(cliente);
+  } else {
+    // Actualizar información del cliente existente
+    cliente.nombre = reserva.nombre;
+    cliente.email = reserva.email;
+    cliente.telefono = reserva.telefono;
+  }
+
+  // Agregar reserva al cliente si no existe
+  if (!cliente.reservas.find((r) => r.id === reserva.id)) {
+    cliente.reservas.push({
+      id: reserva.id,
+      dia: reserva.dia,
+      hora: reserva.hora,
+      lugar: reserva.lugar,
+      ocasion: reserva.ocasion,
+      mesaId: reserva.mesaId,
+      estado: reserva.estado,
+      formaPago: reserva.formaPago,
+      notas: reserva.notas,
+      fechaCreacion: reserva.fechaCreacion,
+    });
+
+    // Crear registro de pago
+    const pago = {
+      id: `pago${reserva.id}`,
+      reservaId: reserva.id,
+      mesaId: reserva.mesaId,
+      monto: calcularMontoReserva(reserva),
+      fecha: reserva.dia,
+      metodo: reserva.formaPago,
+      fechaRegistro: new Date().toISOString(),
+    };
+
+    cliente.pagos.push(pago);
+    cliente.totalPagos += pago.monto;
+  }
+
+  localStorage.setItem("clientesRestaurante", JSON.stringify(existingClients));
+}
+
+function calcularMontoReserva(reserva) {
+  // Lógica simple de cálculo de monto basado en la mesa y ocasión
+  const mesa = mesas.value.find((m) => m.id === reserva.mesaId);
+  let baseAmount = 50; // Monto base
+
+  if (mesa) {
+    baseAmount += mesa.capacidad * 10; // $10 por persona
+  }
+
+  // Aumentar por ocasiones especiales
+  if (reserva.ocasion === "Cumpleaños" || reserva.ocasion === "Aniversario") {
+    baseAmount += 20;
+  }
+
+  return baseAmount;
 }
 
 function eliminarReserva(id) {
@@ -560,6 +737,21 @@ function eliminarReserva(id) {
   // Liberar mesa
   const mesa = mesas.value.find((m) => m.id === reserva.mesaId);
   if (mesa) mesa.estado = "disponible";
+
+  // Eliminar reserva del cliente
+  const existingClients = JSON.parse(
+    localStorage.getItem("clientesRestaurante") || "[]"
+  );
+  const cliente = existingClients.find((c) => c.id === reserva.clientId);
+  if (cliente) {
+    cliente.reservas = cliente.reservas.filter((r) => r.id !== id);
+    cliente.pagos = cliente.pagos.filter((p) => p.reservaId !== id);
+    cliente.totalPagos = cliente.pagos.reduce(
+      (total, pago) => total + pago.monto,
+      0
+    );
+  }
+  localStorage.setItem("clientesRestaurante", JSON.stringify(existingClients));
 
   reservas.value = reservas.value.filter((r) => r.id !== id);
   guardarMesas();
@@ -669,5 +861,27 @@ watch(reservas, guardarReservas, { deep: true });
 
 .tables-main {
   flex: 1;
+}
+
+/* Estilos para el textarea de notas */
+.notes-textarea {
+  resize: vertical;
+  min-height: 100px;
+  width: 100%;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notes-textarea:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+  background-color: #ffffff;
 }
 </style>
