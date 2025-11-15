@@ -3,8 +3,12 @@
     <div class="button-bar">
       <button @click="currentSection = 'productos'">Productos</button>
       <button @click="currentSection = 'ingredientes'">Ingredientes</button>
-      <button>Cant. de productos</button>
-      <button>Cant. de Ingredientes</button>
+      <button @click="currentSection = 'cantProductos'">
+        Cant. de productos
+      </button>
+      <button @click="currentSection = 'cantIngredientes'">
+        Cant. de Ingredientes
+      </button>
       <button>Lista de precios</button>
     </div>
     <div v-if="currentSection === 'productos'" class="productos-page">
@@ -29,10 +33,10 @@
           <ul>
             <li
               v-for="(item, index) in items[selectedCategory]"
-              :key="item"
+              :key="item.name"
               class="item-row"
             >
-              <span class="item-name">{{ index + 1 }}. {{ item }}</span>
+              <span class="item-name">{{ index + 1 }}. {{ item.name }}</span>
               <div class="item-actions">
                 <button
                   @click="editItem(index)"
@@ -188,11 +192,166 @@
         </div>
       </div>
     </div>
+    <!-- Sección Cant. de productos -->
+    <div v-if="currentSection === 'cantProductos'" class="productos-page">
+      <div class="left-side">
+        <h1 class="title">Categorías de Productos</h1>
+        <div class="category-list">
+          <button
+            v-for="category in categories"
+            :key="category"
+            class="category-btn"
+            :class="{ active: selectedCantCategory === category }"
+            @click="selectCantCategory(category)"
+          >
+            {{ category }}
+          </button>
+        </div>
+      </div>
+      <div class="right-side" @wheel.prevent>
+        <div class="top-buttons">
+          <button @click="toggleEditMode" class="edit-mode-btn">Editar</button>
+          <input
+            v-model="searchQuery"
+            placeholder="Buscar productos..."
+            class="search-input-top"
+          />
+        </div>
+        <div v-if="selectedCantCategory" class="item-list">
+          <h2>{{ selectedCantCategory }}</h2>
+          <table class="quantity-table">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th v-if="editMode">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in filteredCantItems" :key="item.name">
+                <td>{{ index + 1 }}. {{ item.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td v-if="editMode">
+                  <button
+                    @click="editQuantity(index)"
+                    class="edit-btn"
+                    title="Editar Cantidad"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- Modal para editar cantidad -->
+    <div
+      v-if="showEditQuantityForm"
+      class="modal-overlay"
+      @click="showEditQuantityForm = false"
+    >
+      <div class="modal-content" @click.stop>
+        <h3>Editar Cantidad</h3>
+        <p>{{ editingItem.category }} - {{ editingItem.name }}</p>
+        <input
+          v-model.number="editingItem.quantity"
+          type="number"
+          placeholder="Cantidad"
+        />
+        <div class="modal-buttons">
+          <button @click="updateQuantity">Actualizar</button>
+          <button @click="showEditQuantityForm = false">Cancelar</button>
+        </div>
+      </div>
+    </div>
+    <!-- Sección Cant. de ingredientes -->
+    <div v-if="currentSection === 'cantIngredientes'" class="productos-page">
+      <div class="left-side">
+        <h1 class="title">Categorías de Ingredientes</h1>
+        <div class="category-list">
+          <button
+            v-for="category in ingredientCategories"
+            :key="category"
+            class="category-btn"
+            :class="{ active: selectedCantIngredientCategory === category }"
+            @click="selectCantIngredientCategory(category)"
+          >
+            {{ category }}
+          </button>
+        </div>
+      </div>
+      <div class="right-side" @wheel.prevent>
+        <div class="top-buttons">
+          <button @click="toggleEditIngredientMode" class="edit-mode-btn">
+            Editar
+          </button>
+          <input
+            v-model="searchIngredientQuery"
+            placeholder="Buscar ingredientes..."
+            class="search-input-top"
+          />
+        </div>
+        <div v-if="selectedCantIngredientCategory" class="item-list">
+          <h2>{{ selectedCantIngredientCategory }}</h2>
+          <table class="quantity-table">
+            <thead>
+              <tr>
+                <th>Ingrediente</th>
+                <th>Cantidad</th>
+                <th v-if="editIngredientMode">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(item, index) in filteredCantIngredients"
+                :key="item.name"
+              >
+                <td>{{ index + 1 }}. {{ item.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td v-if="editIngredientMode">
+                  <button
+                    @click="editIngredientQuantity(index)"
+                    class="edit-btn"
+                    title="Editar Cantidad"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- Modal para editar cantidad de ingrediente -->
+    <div
+      v-if="showEditIngredientQuantityForm"
+      class="modal-overlay"
+      @click="showEditIngredientQuantityForm = false"
+    >
+      <div class="modal-content" @click.stop>
+        <h3>Editar Cantidad</h3>
+        <p>{{ editingIngredient.category }} - {{ editingIngredient.name }}</p>
+        <input
+          v-model.number="editingIngredient.quantity"
+          type="number"
+          placeholder="Cantidad"
+        />
+        <div class="modal-buttons">
+          <button @click="updateIngredientQuantity">Actualizar</button>
+          <button @click="showEditIngredientQuantityForm = false">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 const currentSection = ref("productos");
 const categories = ref([
@@ -211,7 +370,10 @@ const categories = ref([
   "Ensaladas",
 ]);
 const items = ref({
-  Bebidas: [],
+  Bebidas: [
+    { name: "Coca Cola", quantity: 10 },
+    { name: "Sprite", quantity: 5 },
+  ],
   Entradas: [],
   Adicionales: [],
   "Com. de Mar": [],
@@ -236,7 +398,10 @@ const ingredientCategories = ref([
   "Condimentos",
 ]);
 const ingredients = ref({
-  Verduras: [],
+  Verduras: [
+    { name: "Lechuga", quantity: 20 },
+    { name: "Tomate", quantity: 15 },
+  ],
   Frutas: [],
   Carnes: [],
   Lácteos: [],
@@ -247,6 +412,8 @@ const ingredients = ref({
 });
 const selectedCategory = ref("");
 const selectedIngredientCategory = ref("");
+const selectedCantCategory = ref("");
+const selectedCantIngredientCategory = ref("");
 const newItem = ref({ category: "", name: "" });
 const newIngredient = ref({ category: "", name: "" });
 const showAddForm = ref(false);
@@ -262,7 +429,10 @@ const selectCategory = (category) => {
 
 const addItem = () => {
   if (newItem.value.category && newItem.value.name) {
-    items.value[newItem.value.category].push(newItem.value.name);
+    items.value[newItem.value.category].push({
+      name: newItem.value.name,
+      quantity: 0,
+    });
     newItem.value = { category: "", name: "" };
     showAddForm.value = false;
   }
@@ -274,14 +444,14 @@ const toggleAddForm = () => {
 
 const editItem = (index) => {
   editingIndex.value = index;
-  newItem.value.name = items.value[selectedCategory.value][index];
+  newItem.value.name = items.value[selectedCategory.value][index].name;
   newItem.value.category = selectedCategory.value;
   showEditForm.value = true;
 };
 
 const updateItem = () => {
   if (newItem.value.name && editingIndex.value >= 0) {
-    items.value[selectedCategory.value][editingIndex.value] =
+    items.value[selectedCategory.value][editingIndex.value].name =
       newItem.value.name;
     newItem.value = { category: "", name: "" };
     editingIndex.value = -1;
@@ -299,9 +469,10 @@ const selectIngredientCategory = (category) => {
 
 const addIngredient = () => {
   if (newIngredient.value.category && newIngredient.value.name) {
-    ingredients.value[newIngredient.value.category].push(
-      newIngredient.value.name
-    );
+    ingredients.value[newIngredient.value.category].push({
+      name: newIngredient.value.name,
+      quantity: 0,
+    });
     newIngredient.value = { category: "", name: "" };
     showAddIngredientForm.value = false;
   }
@@ -314,7 +485,7 @@ const toggleAddIngredientForm = () => {
 const editIngredient = (index) => {
   editingIngredientIndex.value = index;
   newIngredient.value.name =
-    ingredients.value[selectedIngredientCategory.value][index];
+    ingredients.value[selectedIngredientCategory.value][index].name;
   newIngredient.value.category = selectedIngredientCategory.value;
   showEditIngredientForm.value = true;
 };
@@ -323,7 +494,7 @@ const updateIngredient = () => {
   if (newIngredient.value.name && editingIngredientIndex.value >= 0) {
     ingredients.value[selectedIngredientCategory.value][
       editingIngredientIndex.value
-    ] = newIngredient.value.name;
+    ].name = newIngredient.value.name;
     newIngredient.value = { category: "", name: "" };
     editingIngredientIndex.value = -1;
     showEditIngredientForm.value = false;
@@ -332,6 +503,128 @@ const updateIngredient = () => {
 
 const deleteIngredient = (index) => {
   ingredients.value[selectedIngredientCategory.value].splice(index, 1);
+};
+
+// Variables para la sección Cant. de productos
+const searchQuery = ref("");
+const editMode = ref(false);
+const searchMode = ref(false);
+const showEditQuantityForm = ref(false);
+const editingItem = ref({ category: "", name: "", quantity: 0 });
+const editingQuantityIndex = ref(-1);
+
+// Variables para la sección Cant. de ingredientes
+const searchIngredientQuery = ref("");
+const editIngredientMode = ref(false);
+const showEditIngredientQuantityForm = ref(false);
+const editingIngredient = ref({ category: "", name: "", quantity: 0 });
+const editingIngredientQuantityIndex = ref(-1);
+
+// Computed para filtrar items
+const allItems = computed(() => {
+  const result = [];
+  for (const category in items.value) {
+    items.value[category].forEach((item) => {
+      result.push({ ...item, category });
+    });
+  }
+  return result;
+});
+
+const filteredItems = computed(() => {
+  if (!searchQuery.value) return allItems.value;
+  return allItems.value.filter((item) =>
+    item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
+
+// Funciones para la sección Cant. de productos
+const toggleEditMode = () => {
+  editMode.value = !editMode.value;
+};
+
+const toggleSearchMode = () => {
+  searchMode.value = !searchMode.value;
+};
+
+const editQuantity = (index) => {
+  const item = filteredItems.value[index];
+  editingItem.value = { ...item };
+  editingQuantityIndex.value = index;
+  showEditQuantityForm.value = true;
+};
+
+const selectCantCategory = (category) => {
+  selectedCantCategory.value = category;
+};
+
+const filteredCantItems = computed(() => {
+  if (!selectedCantCategory.value) return [];
+  const categoryItems = items.value[selectedCantCategory.value];
+  if (!searchQuery.value) return categoryItems;
+  return categoryItems.filter((item) =>
+    item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
+
+const updateQuantity = () => {
+  if (editingQuantityIndex.value >= 0) {
+    const item = filteredCantItems.value[editingQuantityIndex.value];
+    const categoryItems = items.value[selectedCantCategory.value];
+    const itemIndex = categoryItems.findIndex((i) => i.name === item.name);
+    if (itemIndex >= 0) {
+      categoryItems[itemIndex].quantity = editingItem.value.quantity;
+    }
+    showEditQuantityForm.value = false;
+    editingQuantityIndex.value = -1;
+  }
+};
+
+// Funciones para la sección Cant. de ingredientes
+const toggleEditIngredientMode = () => {
+  editIngredientMode.value = !editIngredientMode.value;
+};
+
+const editIngredientQuantity = (index) => {
+  const item = filteredCantIngredients.value[index];
+  editingIngredient.value = {
+    ...item,
+    category: selectedCantIngredientCategory.value,
+  };
+  editingIngredientQuantityIndex.value = index;
+  showEditIngredientQuantityForm.value = true;
+};
+
+const selectCantIngredientCategory = (category) => {
+  selectedCantIngredientCategory.value = category;
+};
+
+const filteredCantIngredients = computed(() => {
+  if (!selectedCantIngredientCategory.value) return [];
+  const categoryIngredients =
+    ingredients.value[selectedCantIngredientCategory.value];
+  if (!searchIngredientQuery.value) return categoryIngredients;
+  return categoryIngredients.filter((item) =>
+    item.name.toLowerCase().includes(searchIngredientQuery.value.toLowerCase())
+  );
+});
+
+const updateIngredientQuantity = () => {
+  if (editingIngredientQuantityIndex.value >= 0) {
+    const item =
+      filteredCantIngredients.value[editingIngredientQuantityIndex.value];
+    const categoryIngredients =
+      ingredients.value[selectedCantIngredientCategory.value];
+    const itemIndex = categoryIngredients.findIndex(
+      (i) => i.name === item.name
+    );
+    if (itemIndex >= 0) {
+      categoryIngredients[itemIndex].quantity =
+        editingIngredient.value.quantity;
+    }
+    showEditIngredientQuantityForm.value = false;
+    editingIngredientQuantityIndex.value = -1;
+  }
 };
 </script>
 
@@ -634,5 +927,72 @@ const deleteIngredient = (index) => {
 
 .modal-buttons button:last-child:hover {
   background: #c53030;
+}
+
+.item-quantity {
+  font-weight: bold;
+  color: #2d3748;
+}
+
+.search-bar {
+  margin-bottom: 1rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.top-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.edit-mode-btn,
+.search-mode-btn {
+  background: #3182ce;
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.edit-mode-btn:hover,
+.search-mode-btn:hover {
+  background: #2c5282;
+}
+
+.search-input-top {
+  width: 200px;
+  padding: 0.5rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.quantity-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.quantity-table th,
+.quantity-table td {
+  padding: 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.quantity-table th {
+  background: #f7fafc;
+  font-weight: bold;
+  color: #2d3748;
 }
 </style>
