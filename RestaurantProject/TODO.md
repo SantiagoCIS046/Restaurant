@@ -1,10 +1,7 @@
-# TODO: Arreglar cuadro de agregar artículo
+# TODO: Implementar Página de Ingredientes
 
-- [x] Modificar el template para mover el formulario de agregar artículo a un modal
-- [x] Agregar estilos CSS para el modal (fondo oscuro y caja centrada)
-- [x] Verificar que el modal aparezca al presionar "Agregar Artículo" y se cierre correctamente
-- [x] Cambiar la sección por defecto a "productos" para que se muestre la página al cargar
-- [x] Agregar botones de editar y eliminar para cada artículo en la lista
-- [x] Implementar funcionalidad de edición con modal
-- [x] Implementar funcionalidad de eliminación
-- [x] Ordenar artículos por número secuencial
+1. Agregar @click al botón de Ingredientes para cambiar currentSection a 'ingredientes'. ✅
+2. Agregar datos reactivos para categorías de ingredientes y lista de ingredientes. ✅
+3. Crear la sección v-if para 'ingredientes' con estructura similar a productos (lado izquierdo categorías, lado derecho lista). ✅
+4. Ajustar los modales para funcionar con ingredientes (usar datos separados). ✅
+5. Probar la funcionalidad de agregar, editar y eliminar ingredientes.

@@ -2,7 +2,7 @@
   <div class="menu-container">
     <div class="button-bar">
       <button @click="currentSection = 'productos'">Productos</button>
-      <button>Ingredientes</button>
+      <button @click="currentSection = 'ingredientes'">Ingredientes</button>
       <button>Cant. de productos</button>
       <button>Cant. de Ingredientes</button>
       <button>Lista de precios</button>
@@ -54,6 +54,55 @@
         </div>
       </div>
     </div>
+    <div v-if="currentSection === 'ingredientes'" class="productos-page">
+      <div class="left-side">
+        <h1 class="title">Categorías de Ingredientes</h1>
+        <div class="category-list">
+          <button
+            v-for="category in ingredientCategories"
+            :key="category"
+            class="category-btn"
+            :class="{ active: selectedIngredientCategory === category }"
+            @click="selectIngredientCategory(category)"
+          >
+            {{ category }}
+          </button>
+        </div>
+      </div>
+      <div class="right-side" @wheel.prevent>
+        <button class="add-btn" @click="toggleAddIngredientForm">
+          Agregar Ingrediente
+        </button>
+        <div v-if="selectedIngredientCategory" class="item-list">
+          <h2>{{ selectedIngredientCategory }}</h2>
+          <ul>
+            <li
+              v-for="(item, index) in ingredients[selectedIngredientCategory]"
+              :key="item"
+              class="item-row"
+            >
+              <span class="item-name">{{ index + 1 }}. {{ item }}</span>
+              <div class="item-actions">
+                <button
+                  @click="editIngredient(index)"
+                  class="edit-btn"
+                  title="Editar"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button
+                  @click="deleteIngredient(index)"
+                  class="delete-btn"
+                  title="Eliminar"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
     <!-- Modal para agregar artículo -->
     <div v-if="showAddForm" class="modal-overlay" @click="toggleAddForm">
       <div class="modal-content" @click.stop>
@@ -88,6 +137,54 @@
         <div class="modal-buttons">
           <button @click="updateItem">Actualizar</button>
           <button @click="showEditForm = false">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para agregar ingrediente -->
+    <div
+      v-if="showAddIngredientForm"
+      class="modal-overlay"
+      @click="toggleAddIngredientForm"
+    >
+      <div class="modal-content" @click.stop>
+        <h3>Agregar Ingrediente</h3>
+        <select v-model="newIngredient.category">
+          <option disabled value="">Selecciona una categoría</option>
+          <option
+            v-for="category in ingredientCategories"
+            :key="category"
+            :value="category"
+          >
+            {{ category }}
+          </option>
+        </select>
+        <input
+          v-model="newIngredient.name"
+          placeholder="Nombre del ingrediente"
+        />
+        <div class="modal-buttons">
+          <button @click="addIngredient">Agregar</button>
+          <button @click="toggleAddIngredientForm">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para editar ingrediente -->
+    <div
+      v-if="showEditIngredientForm"
+      class="modal-overlay"
+      @click="showEditIngredientForm = false"
+    >
+      <div class="modal-content" @click.stop>
+        <h3>Editar Ingrediente</h3>
+        <input
+          v-model="newIngredient.name"
+          placeholder="Nombre del ingrediente"
+        />
+        <div class="modal-buttons">
+          <button @click="updateIngredient">Actualizar</button>
+          <button @click="showEditIngredientForm = false">Cancelar</button>
         </div>
       </div>
     </div>
@@ -128,11 +225,36 @@ const items = ref({
   Postres: [],
   Ensaladas: [],
 });
+const ingredientCategories = ref([
+  "Verduras",
+  "Frutas",
+  "Carnes",
+  "Lácteos",
+  "Especias",
+  "Granos",
+  "Aceites",
+  "Condimentos",
+]);
+const ingredients = ref({
+  Verduras: [],
+  Frutas: [],
+  Carnes: [],
+  Lácteos: [],
+  Especias: [],
+  Granos: [],
+  Aceites: [],
+  Condimentos: [],
+});
 const selectedCategory = ref("");
+const selectedIngredientCategory = ref("");
 const newItem = ref({ category: "", name: "" });
+const newIngredient = ref({ category: "", name: "" });
 const showAddForm = ref(false);
+const showAddIngredientForm = ref(false);
 const editingIndex = ref(-1);
+const editingIngredientIndex = ref(-1);
 const showEditForm = ref(false);
+const showEditIngredientForm = ref(false);
 
 const selectCategory = (category) => {
   selectedCategory.value = category;
@@ -169,6 +291,47 @@ const updateItem = () => {
 
 const deleteItem = (index) => {
   items.value[selectedCategory.value].splice(index, 1);
+};
+
+const selectIngredientCategory = (category) => {
+  selectedIngredientCategory.value = category;
+};
+
+const addIngredient = () => {
+  if (newIngredient.value.category && newIngredient.value.name) {
+    ingredients.value[newIngredient.value.category].push(
+      newIngredient.value.name
+    );
+    newIngredient.value = { category: "", name: "" };
+    showAddIngredientForm.value = false;
+  }
+};
+
+const toggleAddIngredientForm = () => {
+  showAddIngredientForm.value = !showAddIngredientForm.value;
+};
+
+const editIngredient = (index) => {
+  editingIngredientIndex.value = index;
+  newIngredient.value.name =
+    ingredients.value[selectedIngredientCategory.value][index];
+  newIngredient.value.category = selectedIngredientCategory.value;
+  showEditIngredientForm.value = true;
+};
+
+const updateIngredient = () => {
+  if (newIngredient.value.name && editingIngredientIndex.value >= 0) {
+    ingredients.value[selectedIngredientCategory.value][
+      editingIngredientIndex.value
+    ] = newIngredient.value.name;
+    newIngredient.value = { category: "", name: "" };
+    editingIngredientIndex.value = -1;
+    showEditIngredientForm.value = false;
+  }
+};
+
+const deleteIngredient = (index) => {
+  ingredients.value[selectedIngredientCategory.value].splice(index, 1);
 };
 </script>
 
