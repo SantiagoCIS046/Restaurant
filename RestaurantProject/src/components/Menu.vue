@@ -9,7 +9,7 @@
       <button @click="currentSection = 'cantIngredientes'">
         Cant. de Ingredientes
       </button>
-      <button>Lista de precios</button>
+      <button @click="currentSection = 'listaPrecios'">Lista de precios</button>
     </div>
     <div v-if="currentSection === 'productos'" class="productos-page">
       <div class="left-side">
@@ -347,6 +347,140 @@
         </div>
       </div>
     </div>
+    <!-- Sección Lista de precios -->
+    <div v-if="currentSection === 'listaPrecios'" class="productos-page">
+      <div class="left-side">
+        <h1 class="title">Categorías de Productos</h1>
+        <div class="category-list">
+          <button
+            v-for="category in categories"
+            :key="category"
+            class="category-btn"
+            :class="{ active: selectedPriceCategory === category }"
+            @click="selectPriceCategory(category)"
+          >
+            {{ category }}
+          </button>
+        </div>
+      </div>
+      <div class="right-side" @wheel.prevent>
+        <div v-if="selectedPriceCategory" class="item-list">
+          <h2>{{ selectedPriceCategory }}</h2>
+          <ul>
+            <li
+              v-for="(item, index) in items[selectedPriceCategory]"
+              :key="item.name"
+              class="price-item-row"
+            >
+              <div class="price-item-info" @click="showProductDetails(item)">
+                <span class="item-name">{{ index + 1 }}. {{ item.name }}</span>
+              </div>
+              <div class="price-item-price">
+                <span class="item-price"
+                  >${{ item.price.toLocaleString() }} COP</span
+                >
+              </div>
+              <div class="price-item-actions">
+                <button
+                  @click="showProductDetails(item)"
+                  class="view-btn"
+                  title="Ver detalles"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button
+                  @click="editPriceItem(index)"
+                  class="edit-btn"
+                  title="Editar producto"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- Modal para detalles del producto -->
+    <div
+      v-if="showProductDetailsModal"
+      class="modal-overlay"
+      @click="closeProductDetails"
+    >
+      <div class="modal-content product-details-modal" @click.stop>
+        <h3>{{ selectedProduct?.name }}</h3>
+        <p>
+          <strong>Precio:</strong> ${{
+            selectedProduct?.price.toLocaleString()
+          }}
+          COP
+        </p>
+        <p>
+          <strong>Cantidad disponible:</strong> {{ selectedProduct?.quantity }}
+        </p>
+        <p><strong>Ingredientes:</strong></p>
+        <ul>
+          <li
+            v-for="ingredient in selectedProduct?.ingredients"
+            :key="ingredient"
+          >
+            {{ ingredient }}
+          </li>
+        </ul>
+        <div class="modal-buttons">
+          <button @click="closeProductDetails">Cerrar</button>
+        </div>
+      </div>
+    </div>
+    <!-- Modal para editar producto -->
+    <div
+      v-if="showEditPriceForm"
+      class="modal-overlay"
+      @click="showEditPriceForm = false"
+    >
+      <div class="modal-content edit-product-modal" @click.stop>
+        <h3>Editar Producto</h3>
+        <div class="form-group">
+          <label for="edit-name">Nombre del producto:</label>
+          <input
+            id="edit-name"
+            v-model="editingPriceItem.name"
+            placeholder="Nombre del producto"
+          />
+        </div>
+        <div class="form-group">
+          <label for="edit-price">Precio (COP):</label>
+          <input
+            id="edit-price"
+            v-model.number="editingPriceItem.price"
+            type="number"
+            placeholder="Precio"
+          />
+        </div>
+        <div class="form-group">
+          <label for="edit-quantity">Cantidad:</label>
+          <input
+            id="edit-quantity"
+            v-model.number="editingPriceItem.quantity"
+            type="number"
+            placeholder="Cantidad"
+          />
+        </div>
+        <div class="form-group">
+          <label for="edit-ingredients">Ingredientes:</label>
+          <textarea
+            id="edit-ingredients"
+            v-model="editingPriceItem.ingredientsText"
+            placeholder="Ingredientes (separados por comas)"
+            rows="3"
+          ></textarea>
+        </div>
+        <div class="modal-buttons">
+          <button @click="updatePriceItem">Actualizar</button>
+          <button @click="showEditPriceForm = false">Cancelar</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -371,21 +505,142 @@ const categories = ref([
 ]);
 const items = ref({
   Bebidas: [
-    { name: "Coca Cola", quantity: 10 },
-    { name: "Sprite", quantity: 5 },
+    {
+      name: "Coca Cola",
+      quantity: 10,
+      price: 2500,
+      ingredients: ["Agua", "Azúcar", "Gas"],
+    },
+    {
+      name: "Sprite",
+      quantity: 5,
+      price: 2500,
+      ingredients: ["Agua", "Azúcar", "Gas", "Limón"],
+    },
   ],
-  Entradas: [],
-  Adicionales: [],
-  "Com. de Mar": [],
-  "Nuestros Pescados": [],
-  "Cocina Tipica": [],
-  Res: [],
-  Cerdo: [],
-  Pastas: [],
-  Aves: [],
-  Vegetales: [],
-  Postres: [],
-  Ensaladas: [],
+  Entradas: [
+    {
+      name: "Empanadas",
+      quantity: 20,
+      price: 3000,
+      ingredients: ["Harina", "Carne", "Cebolla", "Papa"],
+    },
+    {
+      name: "Patacones",
+      quantity: 15,
+      price: 4000,
+      ingredients: ["Plátano", "Aceite", "Sal"],
+    },
+  ],
+  Adicionales: [
+    {
+      name: "Arroz",
+      quantity: 30,
+      price: 2000,
+      ingredients: ["Arroz", "Agua", "Sal"],
+    },
+    {
+      name: "Frijoles",
+      quantity: 25,
+      price: 2500,
+      ingredients: ["Frijoles", "Agua", "Cebolla", "Ajo"],
+    },
+  ],
+  "Com. de Mar": [
+    {
+      name: "Ceviche de Camarón",
+      quantity: 10,
+      price: 15000,
+      ingredients: ["Camarón", "Limón", "Cebolla", "Cilantro", "Ají"],
+    },
+  ],
+  "Nuestros Pescados": [
+    {
+      name: "Mojarra Frita",
+      quantity: 8,
+      price: 12000,
+      ingredients: ["Mojarra", "Aceite", "Sal", "Limón"],
+    },
+  ],
+  "Cocina Tipica": [
+    {
+      name: "Bandeja Paisa",
+      quantity: 5,
+      price: 18000,
+      ingredients: [
+        "Carne",
+        "Chicharrón",
+        "Arroz",
+        "Frijoles",
+        "Plátano",
+        "Huevo",
+        "Arepa",
+      ],
+    },
+  ],
+  Res: [
+    {
+      name: "Churrasco",
+      quantity: 12,
+      price: 14000,
+      ingredients: ["Res", "Sal", "Pimienta", "Aceite"],
+    },
+  ],
+  Cerdo: [
+    {
+      name: "Lechona",
+      quantity: 6,
+      price: 16000,
+      ingredients: ["Cerdo", "Arroz", "Papa", "Cebolla", "Ajo"],
+    },
+  ],
+  Pastas: [
+    {
+      name: "Spaghetti Carbonara",
+      quantity: 10,
+      price: 10000,
+      ingredients: ["Pasta", "Huevo", "Queso", "Panceta", "Crema"],
+    },
+  ],
+  Aves: [
+    {
+      name: "Pollo con Papas",
+      quantity: 15,
+      price: 11000,
+      ingredients: ["Pollo", "Papa", "Aceite", "Sal", "Especias"],
+    },
+  ],
+  Vegetales: [
+    {
+      name: "Ensalada Mixta",
+      quantity: 20,
+      price: 5000,
+      ingredients: [
+        "Lechuga",
+        "Tomate",
+        "Pepino",
+        "Zanahoria",
+        "Vinagre",
+        "Aceite",
+      ],
+    },
+  ],
+  Postres: [
+    {
+      name: "Tres Leches",
+      quantity: 10,
+      price: 6000,
+      ingredients: ["Harina", "Leche", "Azúcar", "Huevos", "Vainilla"],
+    },
+  ],
+  Ensaladas: [
+    {
+      name: "Ensalada César",
+      quantity: 12,
+      price: 7000,
+      ingredients: ["Lechuga", "Pollo", "Queso", "Croutons", "Aderezo César"],
+    },
+  ],
 });
 const ingredientCategories = ref([
   "Verduras",
@@ -414,6 +669,17 @@ const selectedCategory = ref("");
 const selectedIngredientCategory = ref("");
 const selectedCantCategory = ref("");
 const selectedCantIngredientCategory = ref("");
+const selectedPriceCategory = ref("");
+const showProductDetailsModal = ref(false);
+const selectedProduct = ref(null);
+const showEditPriceForm = ref(false);
+const editingPriceItem = ref({
+  name: "",
+  price: 0,
+  quantity: 0,
+  ingredientsText: "",
+});
+const editingPriceIndex = ref(-1);
 const newItem = ref({ category: "", name: "" });
 const newIngredient = ref({ category: "", name: "" });
 const showAddForm = ref(false);
@@ -624,6 +890,48 @@ const updateIngredientQuantity = () => {
     }
     showEditIngredientQuantityForm.value = false;
     editingIngredientQuantityIndex.value = -1;
+  }
+};
+
+// Funciones para la sección Lista de precios
+const selectPriceCategory = (category) => {
+  selectedPriceCategory.value = category;
+};
+
+const showProductDetails = (item) => {
+  selectedProduct.value = item;
+  showProductDetailsModal.value = true;
+};
+
+const closeProductDetails = () => {
+  showProductDetailsModal.value = false;
+  selectedProduct.value = null;
+};
+
+const editPriceItem = (index) => {
+  const item = items.value[selectedPriceCategory.value][index];
+  editingPriceItem.value = {
+    name: item.name,
+    price: item.price,
+    quantity: item.quantity,
+    ingredientsText: item.ingredients.join(", "),
+  };
+  editingPriceIndex.value = index;
+  showEditPriceForm.value = true;
+};
+
+const updatePriceItem = () => {
+  if (editingPriceIndex.value >= 0) {
+    const item =
+      items.value[selectedPriceCategory.value][editingPriceIndex.value];
+    item.name = editingPriceItem.value.name;
+    item.price = editingPriceItem.value.price;
+    item.quantity = editingPriceItem.value.quantity;
+    item.ingredients = editingPriceItem.value.ingredientsText
+      .split(",")
+      .map((i) => i.trim());
+    showEditPriceForm.value = false;
+    editingPriceIndex.value = -1;
   }
 };
 </script>
@@ -994,5 +1302,82 @@ const updateIngredientQuantity = () => {
   background: #f7fafc;
   font-weight: bold;
   color: #2d3748;
+}
+
+.price-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.price-item-row:hover {
+  background: #f7fafc;
+}
+
+.price-item-info {
+  flex: 1;
+  cursor: pointer;
+}
+
+.price-item-price {
+  margin-right: 1rem;
+}
+
+.item-price {
+  font-weight: bold;
+  color: #38a169;
+}
+
+.view-btn {
+  background: #3182ce;
+  border: none;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.view-btn:hover {
+  background: #2c5282;
+}
+
+.product-details-modal {
+  width: 400px;
+  max-width: 95%;
+}
+
+.product-details-modal ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+}
+
+.edit-product-modal {
+  width: 400px;
+  max-width: 95%;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #2d3748;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  box-sizing: border-box;
 }
 </style>
