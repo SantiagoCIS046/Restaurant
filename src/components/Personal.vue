@@ -85,6 +85,15 @@
               <p>Rol: {{ persona.rol }}</p>
               <p>Turno: {{ persona.turno }}</p>
               <p>Salario: ${{ persona.salario || "No especificado" }}</p>
+              <p v-if="persona.propinaAutomatica">
+                Propina Automática: Sí ({{ persona.mesasAtendidas }} mesas)
+              </p>
+              <p v-else>Propina Automática: No</p>
+              <p v-if="persona.propinaAutomatica">
+                Propina Diaria: ${{
+                  calcularPropinaAutomatica(persona, 800000)
+                }}
+              </p>
             </div>
             <div class="personal-actions">
               <button class="edit-btn" @click="editarPersonal(persona)">
@@ -154,6 +163,21 @@
               step="0.01"
             />
           </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" v-model="newPersonal.propinaAutomatica" />
+              Propina Automática
+            </label>
+          </div>
+          <div v-if="newPersonal.propinaAutomatica" class="form-group">
+            <label for="personal-mesas">Mesas Atendidas:</label>
+            <input
+              type="number"
+              id="personal-mesas"
+              v-model="newPersonal.mesasAtendidas"
+              min="0"
+            />
+          </div>
           <div class="form-actions">
             <button type="button" @click="closeModal">Cancelar</button>
             <button type="submit">
@@ -183,20 +207,78 @@ const newPersonal = ref({
   rol: "",
   turno: "",
   salario: "",
+  propinaAutomatica: false,
+  mesasAtendidas: 0,
 });
 
 // === Funciones de persistencia ===
 function inicializarPersonal() {
   if (!localStorage.getItem("personalRestaurante")) {
     const personalInicial = [
-      { id: "p1", nombre: "Juan Pérez", rol: "meseros", turno: "Mañana" },
-      { id: "p2", nombre: "María García", rol: "meseros", turno: "Tarde" },
-      { id: "p3", nombre: "Carlos López", rol: "ayudantes", turno: "Mañana" },
-      { id: "p4", nombre: "Ana Rodríguez", rol: "limpieza", turno: "Tarde" },
-      { id: "p5", nombre: "Pedro Sánchez", rol: "cocina", turno: "Mañana" },
-      { id: "p6", nombre: "Laura Martínez", rol: "socios", turno: "Tarde" },
-      { id: "p7", nombre: "Miguel Fernández", rol: "meseros", turno: "Noche" },
-      { id: "p8", nombre: "Sofia Gómez", rol: "ayudantes", turno: "Noche" },
+      {
+        id: "p1",
+        nombre: "Juan Pérez",
+        rol: "meseros",
+        turno: "Mañana",
+        propinaAutomatica: true,
+        mesasAtendidas: 15,
+      },
+      {
+        id: "p2",
+        nombre: "María García",
+        rol: "meseros",
+        turno: "Tarde",
+        propinaAutomatica: true,
+        mesasAtendidas: 12,
+      },
+      {
+        id: "p3",
+        nombre: "Carlos López",
+        rol: "ayudantes",
+        turno: "Mañana",
+        propinaAutomatica: true,
+        mesasAtendidas: 0,
+      },
+      {
+        id: "p4",
+        nombre: "Ana Rodríguez",
+        rol: "limpieza",
+        turno: "Tarde",
+        propinaAutomatica: false,
+        mesasAtendidas: 0,
+      },
+      {
+        id: "p5",
+        nombre: "Pedro Sánchez",
+        rol: "cocina",
+        turno: "Mañana",
+        propinaAutomatica: true,
+        mesasAtendidas: 0,
+      },
+      {
+        id: "p6",
+        nombre: "Laura Martínez",
+        rol: "socios",
+        turno: "Tarde",
+        propinaAutomatica: false,
+        mesasAtendidas: 0,
+      },
+      {
+        id: "p7",
+        nombre: "Miguel Fernández",
+        rol: "meseros",
+        turno: "Noche",
+        propinaAutomatica: true,
+        mesasAtendidas: 18,
+      },
+      {
+        id: "p8",
+        nombre: "Sofia Gómez",
+        rol: "ayudantes",
+        turno: "Noche",
+        propinaAutomatica: true,
+        mesasAtendidas: 0,
+      },
     ];
     localStorage.setItem(
       "personalRestaurante",
@@ -263,6 +345,8 @@ function closeModal() {
     rol: "",
     turno: "",
     salario: "",
+    propinaAutomatica: false,
+    mesasAtendidas: 0,
   };
 }
 
@@ -287,6 +371,30 @@ const filteredPersonal = computed(() => {
 
   return filtered;
 });
+
+// === Funciones para propinas ===
+function calcularPropinaAutomatica(persona, ventasDiarias) {
+  if (!persona.propinaAutomatica) return 0;
+
+  // Si las ventas diarias son menores a 600,000 COP, no hay propina
+  if (ventasDiarias < 600000) return 0;
+
+  // Para meseros: propina basada en mesas atendidas
+  if (persona.rol === "meseros") {
+    const propinaPorMesa = 5000; // 5,000 COP por mesa
+    return persona.mesasAtendidas * propinaPorMesa;
+  }
+
+  // Para otros roles: propina fija si tienen propina automática
+  return 10000; // 10,000 COP fijos para ayudantes, cocina, etc.
+}
+
+function calcularPropinasDiarias(ventasDiarias) {
+  return personal.value.map((persona) => ({
+    ...persona,
+    propinaDiaria: calcularPropinaAutomatica(persona, ventasDiarias),
+  }));
+}
 
 // === Ciclo de vida ===
 onMounted(() => {
@@ -314,7 +422,13 @@ onMounted(() => {
 }
 
 .search-bar {
+  display: flex;
   margin-bottom: 1rem;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .search-input {

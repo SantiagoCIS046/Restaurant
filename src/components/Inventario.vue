@@ -263,22 +263,34 @@
             Generar Reporte General
           </button>
           <button class="category-btn" @click="showProductsReport">
-            Reporte de Productos
+            📊 Reporte de Productos
           </button>
           <button class="category-btn" @click="showIngredientsReport">
-            Reporte de Ingredientes
+            📊 Reporte de Ingredientes
           </button>
           <button class="category-btn" @click="showLowStockReport">
-            Reporte de Stock Bajo
+            📊 Reporte de Stock Bajo
           </button>
           <button class="category-btn" @click="showCategoriesReport">
-            Reporte de Categorías
+            📊 Reporte de Categorías
+          </button>
+          <button class="category-btn" @click="showInventoryValueReport">
+            💰 Reporte de Valor de Inventario
+          </button>
+          <button class="category-btn" @click="showMovementReport">
+            📈 Reporte de Movimientos
+          </button>
+          <button class="category-btn" @click="showSupplierReport">
+            🏢 Reporte de Proveedores
+          </button>
+          <button class="category-btn" @click="showExpirationReport">
+            ⏰ Reporte de Vencimientos
           </button>
           <button class="category-btn" @click="alertStock">
-            Alertar ({{ lowStockAlerts.length }})
+            ⚠️ Alertar ({{ lowStockAlerts.length }})
           </button>
           <button class="category-btn" @click="exportReport">
-            Exportar Reporte
+            📄 Exportar Reporte
           </button>
         </div>
       </div>
@@ -870,81 +882,462 @@
           </div>
 
           <div class="report-sections">
+            <!-- Reporte de Productos -->
             <div class="report-section">
-              <h4>Productos por Categoría</h4>
-              <div class="category-breakdown">
+              <h4>📦 Reporte de Productos</h4>
+              <div class="detailed-category-breakdown">
                 <div
                   v-for="(
                     categoryData, categoryName
                   ) in reportData.productsByCategory"
                   :key="categoryName"
-                  class="category-item"
+                  class="detailed-category-section"
                 >
-                  <div class="category-info">
-                    <span class="category-name">{{ categoryName }}</span>
-                    <span class="category-count"
-                      >{{ categoryData.count }} productos</span
+                  <h5 class="detailed-category-title">{{ categoryName }}</h5>
+                  <div class="detailed-items-list">
+                    <div
+                      v-for="item in categoryData.items"
+                      :key="item.name"
+                      class="detailed-item"
+                      :class="{ 'low-stock': item.quantity < 10 }"
                     >
-                  </div>
-                  <div class="category-stats">
-                    <span
-                      class="low-stock-count"
-                      v-if="categoryData.lowStockCount > 0"
-                    >
-                      {{ categoryData.lowStockCount }} bajo stock
-                    </span>
+                      <span class="detailed-item-name">{{ item.name }}</span>
+                      <span class="detailed-item-quantity"
+                        >Cantidad: {{ item.quantity }}</span
+                      >
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
+            <!-- Reporte de Ingredientes -->
             <div class="report-section">
-              <h4>Ingredientes por Categoría</h4>
-              <div class="category-breakdown">
+              <h4>🥕 Reporte de Ingredientes</h4>
+              <div class="detailed-category-breakdown">
                 <div
                   v-for="(
                     categoryData, categoryName
                   ) in reportData.ingredientsByCategory"
                   :key="categoryName"
-                  class="category-item"
+                  class="detailed-category-section"
                 >
-                  <div class="category-info">
-                    <span class="category-name">{{ categoryName }}</span>
-                    <span class="category-count"
-                      >{{ categoryData.count }} ingredientes</span
+                  <h5 class="detailed-category-title">{{ categoryName }}</h5>
+                  <div class="detailed-items-list">
+                    <div
+                      v-for="item in categoryData.items"
+                      :key="item.name"
+                      class="detailed-item"
+                      :class="{ 'low-stock': item.quantity < 10 }"
                     >
-                  </div>
-                  <div class="category-stats">
-                    <span
-                      class="low-stock-count"
-                      v-if="categoryData.lowStockCount > 0"
-                    >
-                      {{ categoryData.lowStockCount }} bajo stock
-                    </span>
+                      <span class="detailed-item-name">{{ item.name }}</span>
+                      <span class="detailed-item-quantity"
+                        >Cantidad: {{ item.quantity }}</span
+                      >
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div
-              v-if="reportData.lowStockItems.length > 0"
-              class="report-section"
-            >
-              <h4>Items con Stock Bajo</h4>
-              <div class="low-stock-list">
-                <div
-                  v-for="item in reportData.lowStockItems"
-                  :key="item.name"
-                  class="low-stock-item"
-                  :class="{ critical: item.quantity < 5 }"
-                >
-                  <div class="item-info">
-                    <span class="item-name">{{ item.name }}</span>
-                    <span class="item-type">{{ item.type }}</span>
+            <!-- Reporte de Stock -->
+            <div class="report-section">
+              <h4>📊 Reporte de Stock</h4>
+              <div class="stock-report-content">
+                <div class="stock-section">
+                  <h5>Productos por Categoría</h5>
+                  <div class="stock-items">
+                    <div
+                      v-for="(categoryItems, categoryName) in reportData
+                        .stockReport.products"
+                      :key="categoryName"
+                      class="stock-category"
+                    >
+                      <h6>{{ categoryName }}</h6>
+                      <div class="stock-items-list">
+                        <div
+                          v-for="item in categoryItems"
+                          :key="item.name"
+                          class="stock-item"
+                          :class="{ 'low-stock': item.quantity < 10 }"
+                        >
+                          <span class="stock-item-name">{{ item.name }}</span>
+                          <span class="stock-item-quantity">{{
+                            item.quantity
+                          }}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div class="item-quantity">
-                    <span class="quantity">{{ item.quantity }}</span>
-                    <span class="unit">unidades</span>
+                </div>
+                <div class="stock-section">
+                  <h5>Ingredientes por Categoría</h5>
+                  <div class="stock-items">
+                    <div
+                      v-for="(categoryItems, categoryName) in reportData
+                        .stockReport.ingredients"
+                      :key="categoryName"
+                      class="stock-category"
+                    >
+                      <h6>{{ categoryName }}</h6>
+                      <div class="stock-items-list">
+                        <div
+                          v-for="item in categoryItems"
+                          :key="item.name"
+                          class="stock-item"
+                          :class="{ 'low-stock': item.quantity < 10 }"
+                        >
+                          <span class="stock-item-name">{{ item.name }}</span>
+                          <span class="stock-item-quantity">{{
+                            item.quantity
+                          }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reporte de Categorías -->
+            <div class="report-section">
+              <h4>📂 Reporte de Categorías</h4>
+              <div class="categories-report-content">
+                <div class="categories-section">
+                  <h5>Categorías de Productos</h5>
+                  <div class="categories-list">
+                    <div
+                      v-for="(count, category) in reportData.categoriesReport
+                        .productCategoryCounts"
+                      :key="category"
+                      class="category-stat"
+                    >
+                      <span class="category-name">{{ category }}</span>
+                      <span class="category-count">{{ count }} productos</span>
+                    </div>
+                  </div>
+                  <div class="largest-category">
+                    <strong>Categoría más grande:</strong>
+                    {{ reportData.categoriesReport.largestProductCategory }}
+                  </div>
+                </div>
+                <div class="categories-section">
+                  <h5>Categorías de Ingredientes</h5>
+                  <div class="categories-list">
+                    <div
+                      v-for="(count, category) in reportData.categoriesReport
+                        .ingredientCategoryCounts"
+                      :key="category"
+                      class="category-stat"
+                    >
+                      <span class="category-name">{{ category }}</span>
+                      <span class="category-count"
+                        >{{ count }} ingredientes</span
+                      >
+                    </div>
+                  </div>
+                  <div class="largest-category">
+                    <strong>Categoría más grande:</strong>
+                    {{ reportData.categoriesReport.largestIngredientCategory }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reporte de Valor de Inventario -->
+            <div class="report-section">
+              <h4>💰 Reporte de Valor de Inventario</h4>
+              <div class="value-report-content">
+                <div class="value-summary">
+                  <div class="value-item">
+                    <span class="value-label">Valor Total:</span>
+                    <span class="value-amount">{{
+                      reportData.inventoryValueReport.summary.totalValue
+                    }}</span>
+                  </div>
+                  <div class="value-item">
+                    <span class="value-label">Valor de Productos:</span>
+                    <span class="value-amount">{{
+                      reportData.inventoryValueReport.summary.productValue
+                    }}</span>
+                  </div>
+                  <div class="value-item">
+                    <span class="value-label">Valor de Ingredientes:</span>
+                    <span class="value-amount">{{
+                      reportData.inventoryValueReport.summary.ingredientValue
+                    }}</span>
+                  </div>
+                </div>
+                <div class="value-breakdown">
+                  <div class="value-section">
+                    <h5>Valor por Categoría de Productos</h5>
+                    <div class="value-list">
+                      <div
+                        v-for="(data, category) in reportData
+                          .inventoryValueReport.productsByCategory"
+                        :key="category"
+                        class="value-category"
+                      >
+                        <span class="value-category-name">{{ category }}</span>
+                        <span class="value-category-amount">{{
+                          data.value
+                        }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="value-section">
+                    <h5>Valor por Categoría de Ingredientes</h5>
+                    <div class="value-list">
+                      <div
+                        v-for="(data, category) in reportData
+                          .inventoryValueReport.ingredientsByCategory"
+                        :key="category"
+                        class="value-category"
+                      >
+                        <span class="value-category-name">{{ category }}</span>
+                        <span class="value-category-amount">{{
+                          data.value
+                        }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reporte de Movimientos -->
+            <div class="report-section">
+              <h4>📈 Reporte de Movimientos</h4>
+              <div class="movements-report-content">
+                <div class="movements-summary">
+                  <div class="movement-stat">
+                    <span class="stat-label">Total Entradas:</span>
+                    <span class="stat-value">{{
+                      reportData.movementReport.summary.totalEntries
+                    }}</span>
+                  </div>
+                  <div class="movement-stat">
+                    <span class="stat-label">Total Salidas:</span>
+                    <span class="stat-value">{{
+                      reportData.movementReport.summary.totalExits
+                    }}</span>
+                  </div>
+                  <div class="movement-stat">
+                    <span class="stat-label">Total Movimientos:</span>
+                    <span class="stat-value">{{
+                      reportData.movementReport.summary.totalItems
+                    }}</span>
+                  </div>
+                </div>
+                <div class="movements-list">
+                  <h5>Historial de Movimientos</h5>
+                  <div class="movements-items">
+                    <div
+                      v-for="movement in reportData.movementReport.movements"
+                      :key="movement.date + movement.item"
+                      class="movement-item"
+                      :class="{
+                        entry: movement.type === 'Entrada',
+                        exit: movement.type === 'Salida',
+                      }"
+                    >
+                      <div class="movement-info">
+                        <div class="movement-date">{{ movement.date }}</div>
+                        <div class="movement-details">
+                          <span class="movement-item-name">{{
+                            movement.item
+                          }}</span>
+                          <span class="movement-category"
+                            >({{ movement.category }})</span
+                          >
+                        </div>
+                      </div>
+                      <div class="movement-quantity">
+                        <span
+                          class="quantity-badge"
+                          :class="movement.type.toLowerCase()"
+                        >
+                          {{ movement.type === "Entrada" ? "+" : "-"
+                          }}{{ movement.quantity }}
+                        </span>
+                      </div>
+                      <div class="movement-reason">
+                        <span class="reason-text">{{ movement.reason }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reporte de Proveedores -->
+            <div class="report-section">
+              <h4>🏢 Reporte de Proveedores</h4>
+              <div class="suppliers-report-content">
+                <div class="suppliers-summary">
+                  <div class="supplier-stat">
+                    <span class="stat-label">Total Proveedores:</span>
+                    <span class="stat-value">{{
+                      reportData.supplierReport.summary.totalSuppliers
+                    }}</span>
+                  </div>
+                  <div class="supplier-stat">
+                    <span class="stat-label">Proveedores Activos:</span>
+                    <span class="stat-value">{{
+                      reportData.supplierReport.summary.activeSuppliers
+                    }}</span>
+                  </div>
+                </div>
+                <div class="suppliers-list">
+                  <h5>Lista de Proveedores</h5>
+                  <div class="suppliers-items">
+                    <div
+                      v-for="supplier in reportData.supplierReport.suppliers"
+                      :key="supplier.name"
+                      class="supplier-item"
+                    >
+                      <div class="supplier-info">
+                        <div class="supplier-name">{{ supplier.name }}</div>
+                        <div class="supplier-contact">
+                          {{ supplier.contact }}
+                        </div>
+                      </div>
+                      <div class="supplier-products">
+                        <div class="products-label">Productos:</div>
+                        <div class="products-list">
+                          <span
+                            v-for="product in supplier.products"
+                            :key="product"
+                            class="product-tag"
+                          >
+                            {{ product }}
+                          </span>
+                        </div>
+                      </div>
+                      <div class="supplier-last-order">
+                        <div class="last-order-label">Último pedido:</div>
+                        <div class="last-order-date">
+                          {{ supplier.lastOrder }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reporte de Vencimientos -->
+            <div class="report-section">
+              <h4>⏰ Reporte de Vencimientos</h4>
+              <div class="expirations-report-content">
+                <div class="expirations-summary">
+                  <div class="expiration-stat">
+                    <span class="stat-label">Items Críticos (≤3 días):</span>
+                    <span class="stat-value">{{
+                      reportData.expirationReport.summary.criticalItems
+                    }}</span>
+                  </div>
+                  <div class="expiration-stat">
+                    <span class="stat-label"
+                      >Items de Advertencia (≤7 días):</span
+                    >
+                    <span class="stat-value">{{
+                      reportData.expirationReport.summary.warningItems
+                    }}</span>
+                  </div>
+                  <div class="expiration-stat">
+                    <span class="stat-label">Total Próximos a Vencer:</span>
+                    <span class="stat-value">{{
+                      reportData.expirationReport.summary.totalExpiring
+                    }}</span>
+                  </div>
+                </div>
+                <div class="expiring-items-list">
+                  <h5>Items Próximos a Vencer</h5>
+                  <div class="expiring-items">
+                    <div
+                      v-for="item in reportData.expirationReport.expiringItems"
+                      :key="item.name"
+                      class="expiring-item"
+                      :class="{
+                        critical: item.daysUntilExpiration <= 3,
+                        warning:
+                          item.daysUntilExpiration > 3 &&
+                          item.daysUntilExpiration <= 7,
+                      }"
+                    >
+                      <div class="item-info">
+                        <div class="item-name">{{ item.name }}</div>
+                        <div class="item-category">{{ item.category }}</div>
+                      </div>
+                      <div class="item-quantity">
+                        <span class="quantity">{{ item.quantity }}</span>
+                        <span class="unit">unidades</span>
+                      </div>
+                      <div class="expiration-info">
+                        <div class="expiration-date">
+                          {{ item.expirationDate }}
+                        </div>
+                        <div class="days-remaining">
+                          <span
+                            class="days-badge"
+                            :class="{
+                              critical: item.daysUntilExpiration <= 3,
+                              warning:
+                                item.daysUntilExpiration > 3 &&
+                                item.daysUntilExpiration <= 7,
+                            }"
+                          >
+                            {{ item.daysUntilExpiration }} días
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Alertas -->
+            <div class="report-section">
+              <h4>⚠️ Alertas de Stock Bajo</h4>
+              <div class="alerts-report-content">
+                <div class="alerts-summary">
+                  <div class="alert-stat">
+                    <span class="stat-label">Total Alertas:</span>
+                    <span class="stat-value">{{
+                      reportData.alertsReport.length
+                    }}</span>
+                  </div>
+                </div>
+                <div class="alerts-list">
+                  <h5>Items con Stock Bajo</h5>
+                  <div class="alerts-items">
+                    <div
+                      v-for="alert in reportData.alertsReport"
+                      :key="alert.name"
+                      class="alert-card"
+                      :class="{
+                        'low-stock': alert.quantity < 5,
+                        'medium-stock':
+                          alert.quantity >= 5 && alert.quantity < 10,
+                      }"
+                    >
+                      <div class="alert-info">
+                        <div class="alert-name">{{ alert.name }}</div>
+                        <div class="alert-type">{{ alert.type }}</div>
+                      </div>
+                      <div class="alert-quantity">
+                        <span class="quantity-value">{{ alert.quantity }}</span>
+                        <span class="quantity-unit">unidades</span>
+                      </div>
+                      <div class="alert-status">
+                        <span v-if="alert.quantity < 5" class="status-critical"
+                          >Crítico</span
+                        >
+                        <span v-else class="status-warning">Bajo</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -952,10 +1345,21 @@
           </div>
         </div>
         <div class="report-modal-footer">
-          <button class="export-btn" @click="exportReportData">
-            <i class="fas fa-download"></i>
-            Exportar Reporte
-          </button>
+          <div class="export-options">
+            <label for="export-format">Formato de Exportación:</label>
+            <select
+              id="export-format"
+              v-model="exportFormat"
+              class="export-select"
+            >
+              <option value="pdf">Factura (PDF)</option>
+              <option value="txt">Texto (TXT)</option>
+            </select>
+            <button class="export-btn" @click="exportReportData(exportFormat)">
+              <i class="fas fa-download"></i>
+              Exportar Reporte
+            </button>
+          </div>
           <button class="close-btn" @click="showReportModal = false">
             <i class="fas fa-times"></i>
             Cerrar
@@ -1067,11 +1471,427 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal para reporte de valor de inventario -->
+    <div
+      v-if="showInventoryValueModal"
+      class="modal-overlay"
+      @click="showInventoryValueModal = false"
+    >
+      <div class="report-modal-content" @click.stop>
+        <div class="report-modal-header">
+          <div class="report-modal-icon">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <div class="report-modal-title">
+            <h3>{{ inventoryValueReport.title }}</h3>
+            <p class="report-modal-subtitle">
+              Generado el {{ inventoryValueReport.generatedAt }}
+            </p>
+          </div>
+        </div>
+        <div class="report-modal-body">
+          <div class="report-summary">
+            <div class="summary-grid">
+              <div class="summary-card">
+                <div class="summary-icon">
+                  <i class="fas fa-coins"></i>
+                </div>
+                <div class="summary-content">
+                  <h4>{{ inventoryValueReport.summary.totalValue }}</h4>
+                  <p>Valor Total del Inventario</p>
+                </div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon">
+                  <i class="fas fa-boxes"></i>
+                </div>
+                <div class="summary-content">
+                  <h4>{{ inventoryValueReport.summary.productValue }}</h4>
+                  <p>Valor de Productos</p>
+                </div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon">
+                  <i class="fas fa-leaf"></i>
+                </div>
+                <div class="summary-content">
+                  <h4>{{ inventoryValueReport.summary.ingredientValue }}</h4>
+                  <p>Valor de Ingredientes</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-sections">
+            <div class="report-section">
+              <h4>Valor por Categoría de Productos</h4>
+              <div class="category-breakdown">
+                <div
+                  v-for="(
+                    categoryData, categoryName
+                  ) in inventoryValueReport.productsByCategory"
+                  :key="categoryName"
+                  class="category-item"
+                >
+                  <div class="category-info">
+                    <span class="category-name">{{ categoryName }}</span>
+                    <span class="category-count"
+                      >{{ categoryData.count }} productos</span
+                    >
+                  </div>
+                  <div class="category-stats">
+                    <span class="category-value">{{ categoryData.value }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="report-section">
+              <h4>Valor por Categoría de Ingredientes</h4>
+              <div class="category-breakdown">
+                <div
+                  v-for="(
+                    categoryData, categoryName
+                  ) in inventoryValueReport.ingredientsByCategory"
+                  :key="categoryName"
+                  class="category-item"
+                >
+                  <div class="category-info">
+                    <span class="category-name">{{ categoryName }}</span>
+                    <span class="category-count"
+                      >{{ categoryData.count }} ingredientes</span
+                    >
+                  </div>
+                  <div class="category-stats">
+                    <span class="category-value">{{ categoryData.value }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="report-modal-footer">
+          <button class="export-btn" @click="exportInventoryValueReport">
+            <i class="fas fa-download"></i>
+            Exportar Reporte
+          </button>
+          <button class="close-btn" @click="showInventoryValueModal = false">
+            <i class="fas fa-times"></i>
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para reporte de movimientos -->
+    <div
+      v-if="showMovementModal"
+      class="modal-overlay"
+      @click="showMovementModal = false"
+    >
+      <div class="report-modal-content" @click.stop>
+        <div class="report-modal-header">
+          <div class="report-modal-icon">
+            <i class="fas fa-exchange-alt"></i>
+          </div>
+          <div class="report-modal-title">
+            <h3>{{ movementReport.title }}</h3>
+            <p class="report-modal-subtitle">
+              Generado el {{ movementReport.generatedAt }}
+            </p>
+          </div>
+        </div>
+        <div class="report-modal-body">
+          <div class="report-summary">
+            <div class="summary-grid">
+              <div class="summary-card">
+                <div class="summary-icon">
+                  <i class="fas fa-arrow-up"></i>
+                </div>
+                <div class="summary-content">
+                  <h4>{{ movementReport.summary.totalEntries }}</h4>
+                  <p>Total Entradas</p>
+                </div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon">
+                  <i class="fas fa-arrow-down"></i>
+                </div>
+                <div class="summary-content">
+                  <h4>{{ movementReport.summary.totalExits }}</h4>
+                  <p>Total Salidas</p>
+                </div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon">
+                  <i class="fas fa-list"></i>
+                </div>
+                <div class="summary-content">
+                  <h4>{{ movementReport.summary.totalItems }}</h4>
+                  <p>Total Movimientos</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-sections">
+            <div class="report-section">
+              <h4>Historial de Movimientos</h4>
+              <div class="movements-list">
+                <div
+                  v-for="movement in movementReport.movements"
+                  :key="movement.date + movement.item"
+                  class="movement-item"
+                  :class="{
+                    entry: movement.type === 'Entrada',
+                    exit: movement.type === 'Salida',
+                  }"
+                >
+                  <div class="movement-info">
+                    <div class="movement-date">{{ movement.date }}</div>
+                    <div class="movement-details">
+                      <span class="movement-item-name">{{
+                        movement.item
+                      }}</span>
+                      <span class="movement-category"
+                        >({{ movement.category }})</span
+                      >
+                    </div>
+                  </div>
+                  <div class="movement-quantity">
+                    <span
+                      class="quantity-badge"
+                      :class="movement.type.toLowerCase()"
+                    >
+                      {{ movement.type === "Entrada" ? "+" : "-"
+                      }}{{ movement.quantity }}
+                    </span>
+                  </div>
+                  <div class="movement-reason">
+                    <span class="reason-text">{{ movement.reason }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="report-modal-footer">
+          <button class="export-btn" @click="exportMovementReport">
+            <i class="fas fa-download"></i>
+            Exportar Reporte
+          </button>
+          <button class="close-btn" @click="showMovementModal = false">
+            <i class="fas fa-times"></i>
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para reporte de proveedores -->
+    <div
+      v-if="showSupplierModal"
+      class="modal-overlay"
+      @click="showSupplierModal = false"
+    >
+      <div class="report-modal-content" @click.stop>
+        <div class="report-modal-header">
+          <div class="report-modal-icon">
+            <i class="fas fa-truck"></i>
+          </div>
+          <div class="report-modal-title">
+            <h3>{{ supplierReport.title }}</h3>
+            <p class="report-modal-subtitle">
+              Generado el {{ supplierReport.generatedAt }}
+            </p>
+          </div>
+        </div>
+        <div class="report-modal-body">
+          <div class="report-summary">
+            <div class="summary-grid">
+              <div class="summary-card">
+                <div class="summary-icon">
+                  <i class="fas fa-building"></i>
+                </div>
+                <div class="summary-content">
+                  <h4>{{ supplierReport.summary.totalSuppliers }}</h4>
+                  <p>Total Proveedores</p>
+                </div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon">
+                  <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="summary-content">
+                  <h4>{{ supplierReport.summary.activeSuppliers }}</h4>
+                  <p>Proveedores Activos</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-sections">
+            <div class="report-section">
+              <h4>Lista de Proveedores</h4>
+              <div class="suppliers-list">
+                <div
+                  v-for="supplier in supplierReport.suppliers"
+                  :key="supplier.name"
+                  class="supplier-item"
+                >
+                  <div class="supplier-info">
+                    <div class="supplier-name">{{ supplier.name }}</div>
+                    <div class="supplier-contact">{{ supplier.contact }}</div>
+                  </div>
+                  <div class="supplier-products">
+                    <div class="products-label">Productos:</div>
+                    <div class="products-list">
+                      <span
+                        v-for="product in supplier.products"
+                        :key="product"
+                        class="product-tag"
+                      >
+                        {{ product }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="supplier-last-order">
+                    <div class="last-order-label">Último pedido:</div>
+                    <div class="last-order-date">{{ supplier.lastOrder }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="report-modal-footer">
+          <button class="export-btn" @click="exportSupplierReport">
+            <i class="fas fa-download"></i>
+            Exportar Reporte
+          </button>
+          <button class="close-btn" @click="showSupplierModal = false">
+            <i class="fas fa-times"></i>
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para reporte de vencimientos -->
+    <div
+      v-if="showExpirationModal"
+      class="modal-overlay"
+      @click="showExpirationModal = false"
+    >
+      <div class="report-modal-content" @click.stop>
+        <div class="report-modal-header">
+          <div class="report-modal-icon warning">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="report-modal-title">
+            <h3>{{ expirationReport.title }}</h3>
+            <p class="report-modal-subtitle">
+              Generado el {{ expirationReport.generatedAt }}
+            </p>
+          </div>
+        </div>
+        <div class="report-modal-body">
+          <div class="report-summary">
+            <div class="summary-grid">
+              <div class="summary-card warning">
+                <div class="summary-icon">
+                  <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="summary-content">
+                  <h4>{{ expirationReport.summary.criticalItems }}</h4>
+                  <p>Items Críticos (≤3 días)</p>
+                </div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon">
+                  <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="summary-content">
+                  <h4>{{ expirationReport.summary.warningItems }}</h4>
+                  <p>Items de Advertencia (≤7 días)</p>
+                </div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-icon">
+                  <i class="fas fa-calendar-times"></i>
+                </div>
+                <div class="summary-content">
+                  <h4>{{ expirationReport.summary.totalExpiring }}</h4>
+                  <p>Total Próximos a Vencer</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-sections">
+            <div class="report-section">
+              <h4>Items Próximos a Vencer</h4>
+              <div class="expiring-items-list">
+                <div
+                  v-for="item in expirationReport.expiringItems"
+                  :key="item.name"
+                  class="expiring-item"
+                  :class="{
+                    critical: item.daysUntilExpiration <= 3,
+                    warning:
+                      item.daysUntilExpiration > 3 &&
+                      item.daysUntilExpiration <= 7,
+                  }"
+                >
+                  <div class="item-info">
+                    <div class="item-name">{{ item.name }}</div>
+                    <div class="item-category">{{ item.category }}</div>
+                  </div>
+                  <div class="item-quantity">
+                    <span class="quantity">{{ item.quantity }}</span>
+                    <span class="unit">unidades</span>
+                  </div>
+                  <div class="expiration-info">
+                    <div class="expiration-date">{{ item.expirationDate }}</div>
+                    <div class="days-remaining">
+                      <span
+                        class="days-badge"
+                        :class="{
+                          critical: item.daysUntilExpiration <= 3,
+                          warning:
+                            item.daysUntilExpiration > 3 &&
+                            item.daysUntilExpiration <= 7,
+                        }"
+                      >
+                        {{ item.daysUntilExpiration }} días
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="report-modal-footer">
+          <button class="export-btn" @click="exportExpirationReport">
+            <i class="fas fa-download"></i>
+            Exportar Reporte
+          </button>
+          <button class="close-btn" @click="showExpirationModal = false">
+            <i class="fas fa-times"></i>
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch } from "vue";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const currentSection = ref("productos");
 const productCategories = ref([
@@ -1169,6 +1989,15 @@ const showProductsModal = ref(false);
 const showIngredientsModal = ref(false);
 const showLowStockModal = ref(false);
 const showCategoriesModal = ref(false);
+const showInventoryValueModal = ref(false);
+const inventoryValueReport = ref({});
+const showMovementModal = ref(false);
+const movementReport = ref({});
+const showSupplierModal = ref(false);
+const supplierReport = ref({});
+const showExpirationModal = ref(false);
+const expirationReport = ref({});
+const exportFormat = ref("pdf");
 
 const totalProducts = computed(() => {
   let total = 0;
@@ -1385,7 +2214,7 @@ const deleteCategory = (type, category) => {
 };
 
 const generateReport = () => {
-  // Generate comprehensive report data
+  // Generate comprehensive report data including all report types
   const report = {
     generatedAt: new Date().toLocaleString(),
     summary: {
@@ -1396,10 +2225,16 @@ const generateReport = () => {
     },
     productsByCategory: {},
     ingredientsByCategory: {},
-    lowStockItems: lowStockAlerts.value,
+    stockReport: {},
+    categoriesReport: {},
+    inventoryValueReport: {},
+    movementReport: {},
+    supplierReport: {},
+    expirationReport: {},
+    alertsReport: lowStockAlerts.value,
   };
 
-  // Group products by category
+  // Products by category
   for (const category in products.value) {
     report.productsByCategory[category] = {
       count: products.value[category].length,
@@ -1410,7 +2245,7 @@ const generateReport = () => {
     };
   }
 
-  // Group ingredients by category
+  // Ingredients by category
   for (const category in ingredients.value) {
     report.ingredientsByCategory[category] = {
       count: ingredients.value[category].length,
@@ -1420,6 +2255,242 @@ const generateReport = () => {
       ).length,
     };
   }
+
+  // Stock report - all items with quantities
+  report.stockReport = {
+    products: products.value,
+    ingredients: ingredients.value,
+  };
+
+  // Categories report
+  report.categoriesReport = {
+    productCategories: productCategories.value,
+    ingredientCategories: ingredientCategories.value,
+    productCategoryCounts: productCategoryCounts.value,
+    ingredientCategoryCounts: ingredientCategoryCounts.value,
+    largestProductCategory: getLargestCategory(productCategoryCounts.value),
+    largestIngredientCategory: getLargestCategory(
+      ingredientCategoryCounts.value
+    ),
+  };
+
+  // Inventory value report
+  const productValue = Object.values(products.value).reduce(
+    (total, category) => {
+      return (
+        total +
+        category.reduce(
+          (catTotal, item) => catTotal + item.quantity * (item.price || 0),
+          0
+        )
+      );
+    },
+    0
+  );
+
+  const ingredientValue = Object.values(ingredients.value).reduce(
+    (total, category) => {
+      return (
+        total +
+        category.reduce(
+          (catTotal, item) => catTotal + item.quantity * (item.price || 0),
+          0
+        )
+      );
+    },
+    0
+  );
+
+  const totalValue = productValue + ingredientValue;
+
+  report.inventoryValueReport = {
+    title: "Reporte de Valor de Inventario",
+    generatedAt: new Date().toLocaleString(),
+    summary: {
+      totalValue: totalValue.toLocaleString("es-CO", {
+        style: "currency",
+        currency: "COP",
+      }),
+      productValue: productValue.toLocaleString("es-CO", {
+        style: "currency",
+        currency: "COP",
+      }),
+      ingredientValue: ingredientValue.toLocaleString("es-CO", {
+        style: "currency",
+        currency: "COP",
+      }),
+    },
+    productsByCategory: {},
+    ingredientsByCategory: {},
+  };
+
+  // Group products by category with values
+  for (const category in products.value) {
+    const categoryValue = products.value[category].reduce(
+      (total, item) => total + item.quantity * (item.price || 0),
+      0
+    );
+    report.inventoryValueReport.productsByCategory[category] = {
+      count: products.value[category].length,
+      value: categoryValue.toLocaleString("es-CO", {
+        style: "currency",
+        currency: "COP",
+      }),
+      items: products.value[category].map((item) => ({
+        ...item,
+        value: (item.quantity * (item.price || 0)).toLocaleString("es-CO", {
+          style: "currency",
+          currency: "COP",
+        }),
+      })),
+    };
+  }
+
+  // Group ingredients by category with values
+  for (const category in ingredients.value) {
+    const categoryValue = ingredients.value[category].reduce(
+      (total, item) => total + item.quantity * (item.price || 0),
+      0
+    );
+    report.inventoryValueReport.ingredientsByCategory[category] = {
+      count: ingredients.value[category].length,
+      value: categoryValue.toLocaleString("es-CO", {
+        style: "currency",
+        currency: "COP",
+      }),
+      items: ingredients.value[category].map((item) => ({
+        ...item,
+        value: (item.quantity * (item.price || 0)).toLocaleString("es-CO", {
+          style: "currency",
+          currency: "COP",
+        }),
+      })),
+    };
+  }
+
+  // Movement report
+  report.movementReport = {
+    title: "Reporte de Movimientos de Inventario",
+    generatedAt: new Date().toLocaleString(),
+    movements: [
+      {
+        date: "2024-01-15",
+        type: "Entrada",
+        item: "Coca Cola",
+        category: "Producto",
+        quantity: 10,
+        reason: "Compra inicial",
+      },
+      {
+        date: "2024-01-16",
+        type: "Salida",
+        item: "Empanadas",
+        category: "Producto",
+        quantity: 5,
+        reason: "Venta",
+      },
+      {
+        date: "2024-01-17",
+        type: "Entrada",
+        item: "Lechuga",
+        category: "Ingrediente",
+        quantity: 20,
+        reason: "Reabastecimiento",
+      },
+      {
+        date: "2024-01-18",
+        type: "Salida",
+        item: "Sprite",
+        category: "Producto",
+        quantity: 3,
+        reason: "Venta",
+      },
+      {
+        date: "2024-01-19",
+        type: "Entrada",
+        item: "Tomate",
+        category: "Ingrediente",
+        quantity: 15,
+        reason: "Compra semanal",
+      },
+    ],
+    summary: {
+      totalEntries: 3,
+      totalExits: 2,
+      totalItems: 5,
+    },
+  };
+
+  // Supplier report
+  report.supplierReport = {
+    title: "Reporte de Proveedores",
+    generatedAt: new Date().toLocaleString(),
+    suppliers: [
+      {
+        name: "Distribuidora ABC",
+        products: ["Coca Cola", "Sprite"],
+        contact: "abc@supplier.com",
+        lastOrder: "2024-01-10",
+      },
+      {
+        name: "Verduras Frescas S.A.",
+        products: ["Lechuga", "Tomate"],
+        contact: "frescas@supplier.com",
+        lastOrder: "2024-01-12",
+      },
+      {
+        name: "Carnes Premium",
+        products: ["Pollo", "Res"],
+        contact: "premium@carnes.com",
+        lastOrder: "2024-01-08",
+      },
+    ],
+    summary: {
+      totalSuppliers: 3,
+      activeSuppliers: 3,
+    },
+  };
+
+  // Expiration report
+  report.expirationReport = {
+    title: "Reporte de Vencimientos",
+    generatedAt: new Date().toLocaleString(),
+    expiringItems: [
+      {
+        name: "Leche",
+        category: "Ingrediente",
+        quantity: 5,
+        expirationDate: "2024-01-25",
+        daysUntilExpiration: 5,
+      },
+      {
+        name: "Queso",
+        category: "Ingrediente",
+        quantity: 3,
+        expirationDate: "2024-01-28",
+        daysUntilExpiration: 8,
+      },
+      {
+        name: "Yogurt",
+        category: "Producto",
+        quantity: 10,
+        expirationDate: "2024-01-30",
+        daysUntilExpiration: 10,
+      },
+      {
+        name: "Carne Molida",
+        category: "Ingrediente",
+        quantity: 2,
+        expirationDate: "2024-01-22",
+        daysUntilExpiration: 2,
+      },
+    ],
+    summary: {
+      criticalItems: 1,
+      warningItems: 1,
+      totalExpiring: 4,
+    },
+  };
 
   reportData.value = report;
   showReportModal.value = true;
@@ -1476,59 +2547,277 @@ const applyUpdates = () => {
   console.log("Quantities updated successfully");
 };
 
-const exportReportData = () => {
-  // Create a formatted text report
-  let reportText = `REPORTE GENERAL DE INVENTARIO\n`;
-  reportText += `Generado: ${reportData.value.generatedAt}\n\n`;
+const exportReportData = (format) => {
+  if (format === "pdf") {
+    // Create PDF document
+    const doc = new jsPDF();
 
-  reportText += `RESUMEN:\n`;
-  reportText += `- Total Productos: ${reportData.value.summary.totalProducts}\n`;
-  reportText += `- Total Ingredientes: ${reportData.value.summary.totalIngredients}\n`;
-  reportText += `- Alertas Stock Bajo: ${reportData.value.summary.lowStockAlerts}\n\n`;
+    // Title
+    doc.setFontSize(20);
+    doc.text("FACTURA DE INVENTARIO", 20, 30);
+    doc.setFontSize(12);
+    doc.text(`Generado: ${reportData.value.generatedAt}`, 20, 45);
 
-  reportText += `PRODUCTOS POR CATEGORÍA:\n`;
-  for (const [category, data] of Object.entries(
-    reportData.value.productsByCategory
-  )) {
-    reportText += `- ${category}: ${data.count} productos`;
-    if (data.lowStockCount > 0) {
-      reportText += ` (${data.lowStockCount} bajo stock)`;
+    let yPosition = 60;
+
+    // Summary
+    doc.setFontSize(14);
+    doc.text("RESUMEN GENERAL", 20, yPosition);
+    yPosition += 10;
+    doc.setFontSize(10);
+    doc.text(`- Total Productos: ${reportData.value.summary.totalProducts}`, 20, yPosition);
+    yPosition += 8;
+    doc.text(`- Total Ingredientes: ${reportData.value.summary.totalIngredients}`, 20, yPosition);
+    yPosition += 8;
+    doc.text(`- Alertas Stock Bajo: ${reportData.value.summary.lowStockAlerts}`, 20, yPosition);
+    yPosition += 15;
+
+    // Products by Category
+    doc.setFontSize(14);
+    doc.text("📦 PRODUCTOS POR CATEGORÍA", 20, yPosition);
+    yPosition += 10;
+
+    const productTableData = [];
+    for (const [category, data] of Object.entries(reportData.value.productsByCategory)) {
+      productTableData.push([category, data.count, data.lowStockCount || 0]);
+      data.items.forEach(item => {
+        productTableData.push([`  ${item.name}`, item.quantity, '']);
+      });
     }
-    reportText += `\n`;
-  }
 
-  reportText += `\nINGREDIENTES POR CATEGORÍA:\n`;
-  for (const [category, data] of Object.entries(
-    reportData.value.ingredientsByCategory
-  )) {
-    reportText += `- ${category}: ${data.count} ingredientes`;
-    if (data.lowStockCount > 0) {
-      reportText += ` (${data.lowStockCount} bajo stock)`;
-    }
-    reportText += `\n`;
-  }
-
-  if (reportData.value.lowStockItems.length > 0) {
-    reportText += `\nITEMS CON STOCK BAJO:\n`;
-    reportData.value.lowStockItems.forEach((item) => {
-      reportText += `- ${item.name} (${item.type}): ${item.quantity} unidades\n`;
+    doc.autoTable({
+      startY: yPosition,
+      head: [['Categoría/Producto', 'Cantidad', 'Stock Bajo']],
+      body: productTableData,
+      theme: 'grid',
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [49, 130, 206] },
     });
+
+    yPosition = doc.lastAutoTable.finalY + 15;
+
+    // Ingredients by Category
+    doc.setFontSize(14);
+    doc.text("🥕 INGREDIENTES POR CATEGORÍA", 20, yPosition);
+    yPosition += 10;
+
+    const ingredientTableData = [];
+    for (const [category, data] of Object.entries(reportData.value.ingredientsByCategory)) {
+      ingredientTableData.push([category, data.count, data.lowStockCount || 0]);
+      data.items.forEach(item => {
+        ingredientTableData.push([`  ${item.name}`, item.quantity, '']);
+      });
+    }
+
+    doc.autoTable({
+      startY: yPosition,
+      head: [['Categoría/Ingrediente', 'Cantidad', 'Stock Bajo']],
+      body: ingredientTableData,
+      theme: 'grid',
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [56, 161, 105] },
+    });
+
+    yPosition = doc.lastAutoTable.finalY + 15;
+
+    // Inventory Value
+    doc.setFontSize(14);
+    doc.text("💰 VALOR DEL INVENTARIO", 20, yPosition);
+    yPosition += 10;
+    doc.setFontSize(10);
+    doc.text(`Valor Total: ${reportData.value.inventoryValueReport.summary.totalValue}`, 20, yPosition);
+    yPosition += 8;
+    doc.text(`Valor de Productos: ${reportData.value.inventoryValueReport.summary.productValue}`, 20, yPosition);
+    yPosition += 8;
+    doc.text(`Valor de Ingredientes: ${reportData.value.inventoryValueReport.summary.ingredientValue}`, 20, yPosition);
+
+    // Movement Report
+    yPosition += 15;
+    doc.setFontSize(14);
+    doc.text("📈 MOVIMIENTOS DE INVENTARIO", 20, yPosition);
+    yPosition += 10;
+
+    const movementTableData = reportData.value.movementReport.movements.map(movement => [
+      movement.date,
+      movement.type,
+      movement.item,
+      movement.category,
+      movement.quantity,
+      movement.reason
+    ]);
+
+    doc.autoTable({
+      startY: yPosition,
+      head: [['Fecha', 'Tipo', 'Item', 'Categoría', 'Cantidad', 'Razón']],
+      body: movementTableData,
+      theme: 'grid',
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [102, 126, 234] },
+    });
+
+    // Save PDF
+    doc.save(`factura_inventario_${new Date().toISOString().split("T")[0]}.pdf`);
+  } else {
+    // Export as TXT (existing code)
+    // Create a comprehensive formatted text report
+    let reportText = `FACTURA DE INVENTARIO\n`;
+    reportText += `Generado: ${reportData.value.generatedAt}\n\n`;
+
+    reportText += `RESUMEN GENERAL:\n`;
+    reportText += `- Total Productos: ${reportData.value.summary.totalProducts}\n`;
+    reportText += `- Total Ingredientes: ${reportData.value.summary.totalIngredients}\n`;
+    reportText += `- Alertas Stock Bajo: ${reportData.value.summary.lowStockAlerts}\n\n`;
+
+    // Productos por Categoría
+    reportText += `📦 PRODUCTOS POR CATEGORÍA:\n`;
+    for (const [category, data] of Object.entries(
+      reportData.value.productsByCategory
+    )) {
+      reportText += `\n${category.toUpperCase()} (${data.count} productos`;
+      if (data.lowStockCount > 0) {
+        reportText += `, ${data.lowStockCount} bajo stock`;
+      }
+      reportText += `):\n`;
+      data.items.forEach((item) => {
+        reportText += `  - ${item.name}: ${item.quantity} unidades\n`;
+      });
+    }
+
+    // Ingredientes por Categoría
+    reportText += `\n🥕 INGREDIENTES POR CATEGORÍA:\n`;
+    for (const [category, data] of Object.entries(
+      reportData.value.ingredientsByCategory
+    )) {
+      reportText += `\n${category.toUpperCase()} (${data.count} ingredientes`;
+      if (data.lowStockCount > 0) {
+        reportText += `, ${data.lowStockCount} bajo stock`;
+      }
+      reportText += `):\n`;
+      data.items.forEach((item) => {
+        reportText += `  - ${item.name}: ${item.quantity} unidades\n`;
+      });
+    }
+
+    // Stock Report
+    reportText += `\n📊 REPORTE DE STOCK:\n`;
+    reportText += `\nPRODUCTOS:\n`;
+    for (const [category, items] of Object.entries(
+      reportData.value.stockReport.products
+    )) {
+      reportText += `\n${category}:\n`;
+      items.forEach((item) => {
+        reportText += `  - ${item.name}: ${item.quantity} unidades\n`;
+      });
+    }
+    reportText += `\nINGREDIENTES:\n`;
+    for (const [category, items] of Object.entries(
+      reportData.value.stockReport.ingredients
+    )) {
+      reportText += `\n${category}:\n`;
+      items.forEach((item) => {
+        reportText += `  - ${item.name}: ${item.quantity} unidades\n`;
+      });
+    }
+
+    // Categories Report
+    reportText += `\n📂 REPORTE DE CATEGORÍAS:\n`;
+    reportText += `\nCategorías de Productos:\n`;
+    for (const [category, count] of Object.entries(
+      reportData.value.categoriesReport.productCategoryCounts
+    )) {
+      reportText += `  - ${category}: ${count} productos\n`;
+    }
+    reportText += `\nCategorías de Ingredientes:\n`;
+    for (const [category, count] of Object.entries(
+      reportData.value.categoriesReport.ingredientCategoryCounts
+    )) {
+      reportText += `  - ${category}: ${count} ingredientes\n`;
+    }
+    reportText += `\nCategoría más grande (Productos): ${reportData.value.categoriesReport.largestProductCategory}\n`;
+    reportText += `Categoría más grande (Ingredientes): ${reportData.value.categoriesReport.largestIngredientCategory}\n`;
+
+    // Inventory Value Report
+    reportText += `\n💰 VALOR DEL INVENTARIO:\n`;
+    reportText += `Valor Total: ${reportData.value.inventoryValueReport.summary.totalValue}\n`;
+    reportText += `Valor de Productos: ${reportData.value.inventoryValueReport.summary.productValue}\n`;
+    reportText += `Valor de Ingredientes: ${reportData.value.inventoryValueReport.summary.ingredientValue}\n\n`;
+    reportText += `Valor por Categoría de Productos:\n`;
+    for (const [category, data] of Object.entries(
+      reportData.value.inventoryValueReport.productsByCategory
+    )) {
+      reportText += `  - ${category}: ${data.value}\n`;
+    }
+    reportText += `\nValor por Categoría de Ingredientes:\n`;
+    for (const [category, data] of Object.entries(
+      reportData.value.inventoryValueReport.ingredientsByCategory
+    )) {
+      reportText += `  - ${category}: ${data.value}\n`;
+    }
+
+    // Movement Report
+    reportText += `\n📈 MOVIMIENTOS DE INVENTARIO:\n`;
+    reportText += `Total Entradas: ${reportData.value.movementReport.summary.totalEntries}\n`;
+    reportText += `Total Salidas: ${reportData.value.movementReport.summary.totalExits}\n`;
+    reportText += `Total Movimientos: ${reportData.value.movementReport.summary.totalItems}\n\n`;
+    reportText += `Historial de Movimientos:\n`;
+    reportData.value.movementReport.movements.forEach((movement, index) => {
+      reportText += `${index + 1}. ${movement.date} - ${movement.type} - ${
+        movement.item
+      } (${movement.category}) - Cantidad: ${movement.quantity} - Razón: ${
+        movement.reason
+      }\n`;
+    });
+
+    // Supplier Report
+    reportText += `\n🏢 PROVEEDORES:\n`;
+    reportText += `Total Proveedores: ${reportData.value.supplierReport.summary.totalSuppliers}\n`;
+    reportText += `Proveedores Activos: ${reportData.value.supplierReport.summary.activeSuppliers}\n\n`;
+    reportText += `Lista de Proveedores:\n`;
+    reportData.value.supplierReport.suppliers.forEach((supplier, index) => {
+      reportText += `${index + 1}. ${supplier.name}\n`;
+      reportText += `   Contacto: ${supplier.contact}\n`;
+      reportText += `   Último pedido: ${supplier.lastOrder}\n`;
+      reportText += `   Productos: ${supplier.products.join(", ")}\n\n`;
+    });
+
+    // Expiration Report
+    reportText += `\n⏰ VENCIMIENTOS:\n`;
+    reportText += `Items Críticos (≤3 días): ${reportData.value.expirationReport.summary.criticalItems}\n`;
+    reportText += `Items de Advertencia (≤7 días): ${reportData.value.expirationReport.summary.warningItems}\n`;
+    reportText += `Total Próximos a Vencer: ${reportData.value.expirationReport.summary.totalExpiring}\n\n`;
+    reportText += `Items Próximos a Vencer:\n`;
+    reportData.value.expirationReport.expiringItems.forEach((item, index) => {
+      reportText += `${index + 1}. ${item.name} (${item.category})\n`;
+      reportText += `   Cantidad: ${item.quantity} unidades\n`;
+      reportText += `   Fecha de vencimiento: ${item.expirationDate}\n`;
+      reportText += `   Días hasta vencimiento: ${item.daysUntilExpiration}\n\n`;
+    });
+
+    // Alerts Report
+    reportText += `\n⚠️ ALERTAS DE STOCK BAJO:\n`;
+    reportText += `Total Alertas: ${reportData.value.alertsReport.length}\n\n`;
+    reportText += `Items con Stock Bajo:\n`;
+    reportData.value.alertsReport.forEach((alert, index) => {
+      reportText += `${index + 1}. ${alert.name} (${alert.type}): ${
+        alert.quantity
+      } unidades\n`;
+    });
+
+    // Create and download the file
+    const blob = new Blob([reportText], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `factura_inventario_${
+      new Date().toISOString().split("T")[0]
+    }.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
-  // Create and download the file
-  const blob = new Blob([reportText], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `reporte_inventario_${
-    new Date().toISOString().split("T")[0]
-  }.txt`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-
-  console.log("Report exported successfully");
+  console.log("Factura exported successfully");
 };
 
 const editStockProduct = (index) => {
@@ -1591,6 +2880,391 @@ const getLargestCategory = (counts) => {
     }
   }
   return largest;
+};
+
+const showInventoryValueReport = () => {
+  // Calculate inventory value based on products and ingredients
+  const productValue = Object.values(products.value).reduce(
+    (total, category) => {
+      return (
+        total +
+        category.reduce(
+          (catTotal, item) => catTotal + item.quantity * (item.price || 0),
+          0
+        )
+      );
+    },
+    0
+  );
+
+  const ingredientValue = Object.values(ingredients.value).reduce(
+    (total, category) => {
+      return (
+        total +
+        category.reduce(
+          (catTotal, item) => catTotal + item.quantity * (item.price || 0),
+          0
+        )
+      );
+    },
+    0
+  );
+
+  const totalValue = productValue + ingredientValue;
+
+  // Create modal content for inventory value report
+  const reportContent = {
+    title: "Reporte de Valor de Inventario",
+    generatedAt: new Date().toLocaleString(),
+    summary: {
+      totalValue: totalValue.toLocaleString("es-CO", {
+        style: "currency",
+        currency: "COP",
+      }),
+      productValue: productValue.toLocaleString("es-CO", {
+        style: "currency",
+        currency: "COP",
+      }),
+      ingredientValue: ingredientValue.toLocaleString("es-CO", {
+        style: "currency",
+        currency: "COP",
+      }),
+    },
+    productsByCategory: {},
+    ingredientsByCategory: {},
+  };
+
+  // Group products by category with values
+  for (const category in products.value) {
+    const categoryValue = products.value[category].reduce(
+      (total, item) => total + item.quantity * (item.price || 0),
+      0
+    );
+    reportContent.productsByCategory[category] = {
+      count: products.value[category].length,
+      value: categoryValue.toLocaleString("es-CO", {
+        style: "currency",
+        currency: "COP",
+      }),
+      items: products.value[category].map((item) => ({
+        ...item,
+        value: (item.quantity * (item.price || 0)).toLocaleString("es-CO", {
+          style: "currency",
+          currency: "COP",
+        }),
+      })),
+    };
+  }
+
+  // Group ingredients by category with values
+  for (const category in ingredients.value) {
+    const categoryValue = ingredients.value[category].reduce(
+      (total, item) => total + item.quantity * (item.price || 0),
+      0
+    );
+    reportContent.ingredientsByCategory[category] = {
+      count: ingredients.value[category].length,
+      value: categoryValue.toLocaleString("es-CO", {
+        style: "currency",
+        currency: "COP",
+      }),
+      items: ingredients.value[category].map((item) => ({
+        ...item,
+        value: (item.quantity * (item.price || 0)).toLocaleString("es-CO", {
+          style: "currency",
+          currency: "COP",
+        }),
+      })),
+    };
+  }
+
+  // Show modal with inventory value report
+  showInventoryValueModal.value = true;
+  inventoryValueReport.value = reportContent;
+};
+
+const showMovementReport = () => {
+  // Simulate movement data (in a real app, this would come from a database)
+  const movements = [
+    {
+      date: "2024-01-15",
+      type: "Entrada",
+      item: "Coca Cola",
+      category: "Producto",
+      quantity: 10,
+      reason: "Compra inicial",
+    },
+    {
+      date: "2024-01-16",
+      type: "Salida",
+      item: "Empanadas",
+      category: "Producto",
+      quantity: 5,
+      reason: "Venta",
+    },
+    {
+      date: "2024-01-17",
+      type: "Entrada",
+      item: "Lechuga",
+      category: "Ingrediente",
+      quantity: 20,
+      reason: "Reabastecimiento",
+    },
+    {
+      date: "2024-01-18",
+      type: "Salida",
+      item: "Sprite",
+      category: "Producto",
+      quantity: 3,
+      reason: "Venta",
+    },
+    {
+      date: "2024-01-19",
+      type: "Entrada",
+      item: "Tomate",
+      category: "Ingrediente",
+      quantity: 15,
+      reason: "Compra semanal",
+    },
+  ];
+
+  const reportContent = {
+    title: "Reporte de Movimientos de Inventario",
+    generatedAt: new Date().toLocaleString(),
+    movements: movements,
+    summary: {
+      totalEntries: movements.filter((m) => m.type === "Entrada").length,
+      totalExits: movements.filter((m) => m.type === "Salida").length,
+      totalItems: movements.length,
+    },
+  };
+
+  showMovementModal.value = true;
+  movementReport.value = reportContent;
+};
+
+const showSupplierReport = () => {
+  // Simulate supplier data
+  const suppliers = [
+    {
+      name: "Distribuidora ABC",
+      products: ["Coca Cola", "Sprite"],
+      contact: "abc@supplier.com",
+      lastOrder: "2024-01-10",
+    },
+    {
+      name: "Verduras Frescas S.A.",
+      products: ["Lechuga", "Tomate"],
+      contact: "frescas@supplier.com",
+      lastOrder: "2024-01-12",
+    },
+    {
+      name: "Carnes Premium",
+      products: ["Pollo", "Res"],
+      contact: "premium@carnes.com",
+      lastOrder: "2024-01-08",
+    },
+  ];
+
+  const reportContent = {
+    title: "Reporte de Proveedores",
+    generatedAt: new Date().toLocaleString(),
+    suppliers: suppliers,
+    summary: {
+      totalSuppliers: suppliers.length,
+      activeSuppliers: suppliers.filter(
+        (s) =>
+          new Date(s.lastOrder) >
+          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+      ).length,
+    },
+  };
+
+  showSupplierModal.value = true;
+  supplierReport.value = reportContent;
+};
+
+const showExpirationReport = () => {
+  // Simulate expiration data
+  const expiringItems = [
+    {
+      name: "Leche",
+      category: "Ingrediente",
+      quantity: 5,
+      expirationDate: "2024-01-25",
+      daysUntilExpiration: 5,
+    },
+    {
+      name: "Queso",
+      category: "Ingrediente",
+      quantity: 3,
+      expirationDate: "2024-01-28",
+      daysUntilExpiration: 8,
+    },
+    {
+      name: "Yogurt",
+      category: "Producto",
+      quantity: 10,
+      expirationDate: "2024-01-30",
+      daysUntilExpiration: 10,
+    },
+    {
+      name: "Carne Molida",
+      category: "Ingrediente",
+      quantity: 2,
+      expirationDate: "2024-01-22",
+      daysUntilExpiration: 2,
+    },
+  ];
+
+  const reportContent = {
+    title: "Reporte de Vencimientos",
+    generatedAt: new Date().toLocaleString(),
+    expiringItems: expiringItems,
+    summary: {
+      criticalItems: expiringItems.filter(
+        (item) => item.daysUntilExpiration <= 3
+      ).length,
+      warningItems: expiringItems.filter(
+        (item) => item.daysUntilExpiration <= 7
+      ).length,
+      totalExpiring: expiringItems.length,
+    },
+  };
+
+  showExpirationModal.value = true;
+  expirationReport.value = reportContent;
+};
+
+const exportInventoryValueReport = () => {
+  let reportText = `${inventoryValueReport.value.title}\n`;
+  reportText += `Generado: ${inventoryValueReport.value.generatedAt}\n\n`;
+
+  reportText += `RESUMEN DE VALOR:\n`;
+  reportText += `- Valor Total: ${inventoryValueReport.value.summary.totalValue}\n`;
+  reportText += `- Valor de Productos: ${inventoryValueReport.value.summary.productValue}\n`;
+  reportText += `- Valor de Ingredientes: ${inventoryValueReport.value.summary.ingredientValue}\n\n`;
+
+  reportText += `VALOR POR CATEGORÍA DE PRODUCTOS:\n`;
+  for (const [category, data] of Object.entries(
+    inventoryValueReport.value.productsByCategory
+  )) {
+    reportText += `- ${category}: ${data.count} productos - ${data.value}\n`;
+  }
+
+  reportText += `\nVALOR POR CATEGORÍA DE INGREDIENTES:\n`;
+  for (const [category, data] of Object.entries(
+    inventoryValueReport.value.ingredientsByCategory
+  )) {
+    reportText += `- ${category}: ${data.count} ingredientes - ${data.value}\n`;
+  }
+
+  const blob = new Blob([reportText], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `reporte_valor_inventario_${
+    new Date().toISOString().split("T")[0]
+  }.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+const exportMovementReport = () => {
+  let reportText = `${movementReport.value.title}\n`;
+  reportText += `Generado: ${movementReport.value.generatedAt}\n\n`;
+
+  reportText += `RESUMEN DE MOVIMIENTOS:\n`;
+  reportText += `- Total Entradas: ${movementReport.value.summary.totalEntries}\n`;
+  reportText += `- Total Salidas: ${movementReport.value.summary.totalExits}\n`;
+  reportText += `- Total Movimientos: ${movementReport.value.summary.totalItems}\n\n`;
+
+  reportText += `HISTORIAL DE MOVIMIENTOS:\n`;
+  movementReport.value.movements.forEach((movement, index) => {
+    reportText += `${index + 1}. ${movement.date} - ${movement.type} - ${
+      movement.item
+    } (${movement.category}) - Cantidad: ${movement.quantity} - Razón: ${
+      movement.reason
+    }\n`;
+  });
+
+  const blob = new Blob([reportText], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `reporte_movimientos_${
+    new Date().toISOString().split("T")[0]
+  }.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+const exportSupplierReport = () => {
+  let reportText = `${supplierReport.value.title}\n`;
+  reportText += `Generado: ${supplierReport.value.generatedAt}\n\n`;
+
+  reportText += `RESUMEN DE PROVEEDORES:\n`;
+  reportText += `- Total Proveedores: ${supplierReport.value.summary.totalSuppliers}\n`;
+  reportText += `- Proveedores Activos: ${supplierReport.value.summary.activeSuppliers}\n\n`;
+
+  reportText += `LISTA DE PROVEEDORES:\n`;
+  supplierReport.value.suppliers.forEach((supplier, index) => {
+    reportText += `${index + 1}. ${supplier.name}\n`;
+    reportText += `   Contacto: ${supplier.contact}\n`;
+    reportText += `   Último pedido: ${supplier.lastOrder}\n`;
+    reportText += `   Productos: ${supplier.products.join(", ")}\n\n`;
+  });
+
+  const blob = new Blob([reportText], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `reporte_proveedores_${
+    new Date().toISOString().split("T")[0]
+  }.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+const exportExpirationReport = () => {
+  let reportText = `${expirationReport.value.title}\n`;
+  reportText += `Generado: ${expirationReport.value.generatedAt}\n\n`;
+
+  reportText += `RESUMEN DE VENCIMIENTOS:\n`;
+  reportText += `- Items Críticos (≤3 días): ${expirationReport.value.summary.criticalItems}\n`;
+  reportText += `- Items de Advertencia (≤7 días): ${expirationReport.value.summary.warningItems}\n`;
+  reportText += `- Total Próximos a Vencer: ${expirationReport.value.summary.totalExpiring}\n\n`;
+
+  reportText += `ITEMS PRÓXIMOS A VENCER:\n`;
+  expirationReport.value.expiringItems.forEach((item, index) => {
+    reportText += `${index + 1}. ${item.name} (${item.category})\n`;
+    reportText += `   Cantidad: ${item.quantity} unidades\n`;
+    reportText += `   Fecha de vencimiento: ${item.expirationDate}\n`;
+    reportText += `   Días hasta vencimiento: ${item.daysUntilExpiration}\n\n`;
+  });
+
+  const blob = new Blob([reportText], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `reporte_vencimientos_${
+    new Date().toISOString().split("T")[0]
+  }.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+const exportReport = () => {
+  generateReport();
+  exportReportData("pdf");
 };
 </script>
 
@@ -2863,4 +4537,722 @@ const getLargestCategory = (counts) => {
   color: #3182ce;
   font-size: 1rem;
 }
+
+/* Styles for new report modals */
+.category-value {
+  font-weight: 600;
+  color: #38a169;
+  font-size: 0.875rem;
+}
+
+.movements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.movement-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.movement-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.movement-item.entry {
+  border-left: 4px solid #38a169;
+  background: linear-gradient(90deg, #f0fff4 0%, white 20%);
+}
+
+.movement-item.exit {
+  border-left: 4px solid #e53e3e;
+  background: linear-gradient(90deg, #fef2f2 0%, white 20%);
+}
+
+.movement-info {
+  flex: 1;
+}
+
+.movement-date {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.movement-details {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.movement-item-name {
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.movement-category {
+  font-size: 0.75rem;
+  color: #718096;
+  font-style: italic;
+}
+
+.movement-quantity {
+  text-align: right;
+}
+
+.quantity-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.quantity-badge.entry {
+  background: #38a169;
+  color: white;
+}
+
+.quantity-badge.exit {
+  background: #e53e3e;
+  color: white;
+}
+
+.movement-reason {
+  text-align: right;
+  max-width: 150px;
+}
+
+.reason-text {
+  font-size: 0.75rem;
+  color: #718096;
+  font-style: italic;
+}
+
+.suppliers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.supplier-item {
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.supplier-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.supplier-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.supplier-name {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 1.1rem;
+}
+
+.supplier-contact {
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+.supplier-products {
+  margin-bottom: 1rem;
+}
+
+.products-label {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.products-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.product-tag {
+  background: #edf2f7;
+  color: #4a5568;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.supplier-last-order {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.last-order-label {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.875rem;
+}
+
+.last-order-date {
+  font-size: 0.875rem;
+  color: #38a169;
+  font-weight: 500;
+}
+
+.expiring-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.expiring-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.expiring-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.expiring-item.critical {
+  border-left: 4px solid #e53e3e;
+  background: linear-gradient(90deg, #fef2f2 0%, white 20%);
+}
+
+.expiring-item.warning {
+  border-left: 4px solid #dd6b20;
+  background: linear-gradient(90deg, #fef5e7 0%, white 20%);
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-name {
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+
+.item-category {
+  font-size: 0.875rem;
+  color: #718096;
+  font-weight: 500;
+}
+
+.item-quantity {
+  text-align: center;
+  margin-right: 1rem;
+}
+
+.quantity {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.unit {
+  font-size: 0.75rem;
+  color: #a0aec0;
+}
+
+.expiration-info {
+  text-align: right;
+}
+
+.expiration-date {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.days-remaining {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.days-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.days-badge.critical {
+  background: #e53e3e;
+  color: white;
+}
+
+.days-badge.warning {
+  background: #dd6b20;
+  color: white;
+}
+
+.stock-report-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.stock-section {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.stock-section h5 {
+  margin: 0 0 0.75rem 0;
+  color: #2d3748;
+  font-size: 1rem;
+  font-weight: 600;
+  border-bottom: 2px solid #3182ce;
+  padding-bottom: 0.25rem;
+}
+
+.stock-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stock-category {
+  margin-bottom: 1rem;
+}
+
+.stock-category h6 {
+  margin: 0 0 0.5rem 0;
+  color: #4a5568;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.stock-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stock-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: #f8fafc;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.stock-item.low-stock {
+  border-left: 3px solid #e53e3e;
+  background: linear-gradient(90deg, #fef2f2 0%, #f8fafc 20%);
+}
+
+.stock-item-name {
+  font-weight: 500;
+  color: #2d3748;
+  font-size: 0.85rem;
+}
+
+.stock-item-quantity {
+  font-size: 0.8rem;
+  color: #718096;
+  font-weight: 500;
+}
+
+.categories-report-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.categories-section {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.categories-section h5 {
+  margin: 0 0 0.75rem 0;
+  color: #2d3748;
+  font-size: 1rem;
+  font-weight: 600;
+  border-bottom: 2px solid #3182ce;
+  padding-bottom: 0.25rem;
+}
+
+.categories-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.category-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.category-stat .category-name {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.9rem;
+}
+
+.category-stat .category-count {
+  font-size: 0.85rem;
+  color: #718096;
+  font-weight: 500;
+}
+
+.largest-category {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: #edf2f7;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #4a5568;
+}
+
+.value-report-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.value-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.value-item {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.value-item .value-label {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.value-item .value-amount {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #38a169;
+}
+
+.value-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.value-section {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.value-section h5 {
+  margin: 0 0 0.75rem 0;
+  color: #2d3748;
+  font-size: 1rem;
+  font-weight: 600;
+  border-bottom: 2px solid #3182ce;
+  padding-bottom: 0.25rem;
+}
+
+.value-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.value-category {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.value-category-name {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.9rem;
+}
+
+.value-category-amount {
+  font-size: 0.85rem;
+  color: #38a169;
+  font-weight: 600;
+}
+
+.movements-report-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.movements-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.movement-stat {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.movement-stat .stat-label {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.movement-stat .stat-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #3182ce;
+}
+
+.movements-list {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.movements-list h5 {
+  margin: 0 0 0.75rem 0;
+  color: #2d3748;
+  font-size: 1rem;
+  font-weight: 600;
+  border-bottom: 2px solid #3182ce;
+  padding-bottom: 0.25rem;
+}
+
+.movements-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.suppliers-report-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.suppliers-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.supplier-stat {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.supplier-stat .stat-label {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.supplier-stat .stat-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #3182ce;
+}
+
+.suppliers-list {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.suppliers-list h5 {
+  margin: 0 0 0.75rem 0;
+  color: #2d3748;
+  font-size: 1rem;
+  font-weight: 600;
+  border-bottom: 2px solid #3182ce;
+  padding-bottom: 0.25rem;
+}
+
+.suppliers-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.expirations-report-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.expirations-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.expiration-stat {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.expiration-stat .stat-label {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.expiration-stat .stat-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #3182ce;
+}
+
+.expiring-items-list {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.expiring-items-list h5 {
+  margin: 0 0 0.75rem 0;
+  color: #2d3748;
+  font-size: 1rem;
+  font-weight: 600;
+  border-bottom: 2px solid #3182ce;
+  padding-bottom: 0.25rem;
+}
+
+.expiring-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.alerts-report-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.alerts-summary {
+  display: flex;
+  justify-content: center;
+}
+
+.alert-stat {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+  min-width: 150px;
+}
+
+.alert-stat .stat-label {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.alert-stat .stat-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #e53e3e;
+}
+
+.alerts-list {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.alerts-list h5 {
+  margin: 0 0 0.75rem 0;
+  color: #2d3748;
+  font-size: 1rem;
+  font-weight: 600;
+  border-bottom: 2px solid #3182ce;
+  padding-bottom: 0.25rem;
+}
+
+.alerts-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+</style>
 </style>

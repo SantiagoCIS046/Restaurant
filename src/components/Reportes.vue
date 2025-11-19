@@ -83,6 +83,9 @@
           {{ viewMode === "day" ? "Ver Semana" : "Ver Día" }}
         </button>
         <button @click="resetChart" class="btn btn-outline">Resetear</button>
+        <button @click="exportToCSV" class="btn btn-success">
+          Exportar CSV
+        </button>
       </div>
       <div class="average-display">
         <p>Promedio: {{ averageValue }}</p>
@@ -95,7 +98,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import Chart from "chart.js/auto";
 
 const selectedDate = ref(new Date().toISOString().split("T")[0]);
@@ -151,6 +154,14 @@ const totalVentas = computed(() => {
   }
   const sum = currentData.data.reduce((a, b) => a + b, 0);
   return sum.toLocaleString("es-CO", { style: "currency", currency: "COP" });
+});
+
+// Computed para obtener las ventas totales del día seleccionado
+const ventasDelDia = computed(() => {
+  if (isFutureDate.value || selectedDayIndex.value === null) {
+    return 0;
+  }
+  return reportData[activeReport.value].data[selectedDayIndex.value];
 });
 
 const totalPedidos = computed(() => {
@@ -446,6 +457,49 @@ const resetChart = () => {
     chartInstance.update();
   }
 };
+
+const exportToCSV = () => {
+  const data = reportData[activeReport.value];
+  const currentLabels =
+    viewMode.value === "day" && selectedDayIndex.value !== null
+      ? [data.labels[selectedDayIndex.value]]
+      : data.labels;
+  const currentData =
+    viewMode.value === "day" && selectedDayIndex.value !== null
+      ? [data.data[selectedDayIndex.value]]
+      : data.data;
+  const currentPedidos =
+    viewMode.value === "day" && selectedDayIndex.value !== null
+      ? [data.pedidos[selectedDayIndex.value]]
+      : data.pedidos;
+  const currentClientes =
+    viewMode.value === "day" && selectedDayIndex.value !== null
+      ? [data.clientes[selectedDayIndex.value]]
+      : data.clientes;
+
+  let csvContent = "data:text/csv;charset=utf-8,";
+  csvContent += "Día," + data.label + ",Pedidos,Clientes\n";
+
+  currentLabels.forEach((label, index) => {
+    const value = currentData[index];
+    const pedidos = currentPedidos[index];
+    const clientes = currentClientes[index];
+    csvContent += `${label},${value},${pedidos},${clientes}\n`;
+  });
+
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute(
+    "download",
+    `reporte_${activeReport.value}_${
+      new Date().toISOString().split("T")[0]
+    }.csv`
+  );
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 </script>
 
 <style scoped>
@@ -633,6 +687,16 @@ const resetChart = () => {
   background: #27ae60 !important;
   color: white !important;
   border: 2px solid #27ae60 !important;
+}
+
+.btn-success {
+  background: #27ae60;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #229954;
+  transform: translateY(-2px);
 }
 
 .report-buttons {
