@@ -2565,11 +2565,23 @@ const exportReportData = (format) => {
     doc.text("RESUMEN GENERAL", 20, yPosition);
     yPosition += 10;
     doc.setFontSize(10);
-    doc.text(`- Total Productos: ${reportData.value.summary.totalProducts}`, 20, yPosition);
+    doc.text(
+      `- Total Productos: ${reportData.value.summary.totalProducts}`,
+      20,
+      yPosition
+    );
     yPosition += 8;
-    doc.text(`- Total Ingredientes: ${reportData.value.summary.totalIngredients}`, 20, yPosition);
+    doc.text(
+      `- Total Ingredientes: ${reportData.value.summary.totalIngredients}`,
+      20,
+      yPosition
+    );
     yPosition += 8;
-    doc.text(`- Alertas Stock Bajo: ${reportData.value.summary.lowStockAlerts}`, 20, yPosition);
+    doc.text(
+      `- Alertas Stock Bajo: ${reportData.value.summary.lowStockAlerts}`,
+      20,
+      yPosition
+    );
     yPosition += 15;
 
     // Products by Category
@@ -2578,18 +2590,20 @@ const exportReportData = (format) => {
     yPosition += 10;
 
     const productTableData = [];
-    for (const [category, data] of Object.entries(reportData.value.productsByCategory)) {
+    for (const [category, data] of Object.entries(
+      reportData.value.productsByCategory
+    )) {
       productTableData.push([category, data.count, data.lowStockCount || 0]);
-      data.items.forEach(item => {
-        productTableData.push([`  ${item.name}`, item.quantity, '']);
+      data.items.forEach((item) => {
+        productTableData.push([`  ${item.name}`, item.quantity, ""]);
       });
     }
 
     doc.autoTable({
       startY: yPosition,
-      head: [['Categoría/Producto', 'Cantidad', 'Stock Bajo']],
+      head: [["Categoría/Producto", "Cantidad", "Stock Bajo"]],
       body: productTableData,
-      theme: 'grid',
+      theme: "grid",
       styles: { fontSize: 8 },
       headStyles: { fillColor: [49, 130, 206] },
     });
@@ -2602,18 +2616,20 @@ const exportReportData = (format) => {
     yPosition += 10;
 
     const ingredientTableData = [];
-    for (const [category, data] of Object.entries(reportData.value.ingredientsByCategory)) {
+    for (const [category, data] of Object.entries(
+      reportData.value.ingredientsByCategory
+    )) {
       ingredientTableData.push([category, data.count, data.lowStockCount || 0]);
-      data.items.forEach(item => {
-        ingredientTableData.push([`  ${item.name}`, item.quantity, '']);
+      data.items.forEach((item) => {
+        ingredientTableData.push([`  ${item.name}`, item.quantity, ""]);
       });
     }
 
     doc.autoTable({
       startY: yPosition,
-      head: [['Categoría/Ingrediente', 'Cantidad', 'Stock Bajo']],
+      head: [["Categoría/Ingrediente", "Cantidad", "Stock Bajo"]],
       body: ingredientTableData,
-      theme: 'grid',
+      theme: "grid",
       styles: { fontSize: 8 },
       headStyles: { fillColor: [56, 161, 105] },
     });
@@ -2625,11 +2641,23 @@ const exportReportData = (format) => {
     doc.text("💰 VALOR DEL INVENTARIO", 20, yPosition);
     yPosition += 10;
     doc.setFontSize(10);
-    doc.text(`Valor Total: ${reportData.value.inventoryValueReport.summary.totalValue}`, 20, yPosition);
+    doc.text(
+      `Valor Total: ${reportData.value.inventoryValueReport.summary.totalValue}`,
+      20,
+      yPosition
+    );
     yPosition += 8;
-    doc.text(`Valor de Productos: ${reportData.value.inventoryValueReport.summary.productValue}`, 20, yPosition);
+    doc.text(
+      `Valor de Productos: ${reportData.value.inventoryValueReport.summary.productValue}`,
+      20,
+      yPosition
+    );
     yPosition += 8;
-    doc.text(`Valor de Ingredientes: ${reportData.value.inventoryValueReport.summary.ingredientValue}`, 20, yPosition);
+    doc.text(
+      `Valor de Ingredientes: ${reportData.value.inventoryValueReport.summary.ingredientValue}`,
+      20,
+      yPosition
+    );
 
     // Movement Report
     yPosition += 15;
@@ -2637,26 +2665,30 @@ const exportReportData = (format) => {
     doc.text("📈 MOVIMIENTOS DE INVENTARIO", 20, yPosition);
     yPosition += 10;
 
-    const movementTableData = reportData.value.movementReport.movements.map(movement => [
-      movement.date,
-      movement.type,
-      movement.item,
-      movement.category,
-      movement.quantity,
-      movement.reason
-    ]);
+    const movementTableData = reportData.value.movementReport.movements.map(
+      (movement) => [
+        movement.date,
+        movement.type,
+        movement.item,
+        movement.category,
+        movement.quantity,
+        movement.reason,
+      ]
+    );
 
     doc.autoTable({
       startY: yPosition,
-      head: [['Fecha', 'Tipo', 'Item', 'Categoría', 'Cantidad', 'Razón']],
+      head: [["Fecha", "Tipo", "Item", "Categoría", "Cantidad", "Razón"]],
       body: movementTableData,
-      theme: 'grid',
+      theme: "grid",
       styles: { fontSize: 8 },
       headStyles: { fillColor: [102, 126, 234] },
     });
 
     // Save PDF
-    doc.save(`factura_inventario_${new Date().toISOString().split("T")[0]}.pdf`);
+    doc.save(
+      `factura_inventario_${new Date().toISOString().split("T")[0]}.pdf`
+    );
   } else {
     // Export as TXT (existing code)
     // Create a comprehensive formatted text report
